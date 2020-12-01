@@ -1,0 +1,16 @@
+name: snake_env
+channels:
+  - defaults
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.7
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - pip
+  - keras
+  - tqdm
+  - jupyter
+  - black

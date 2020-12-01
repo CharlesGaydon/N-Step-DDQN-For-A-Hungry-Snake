@@ -4,11 +4,12 @@ import numpy as np
 
 from utils import clear_stdout
 
-direction_encoding = {0: (-1, 0),  # "up"
-                      1: (0, 1),  # "right"
-                      2: (1, 0),  # "bottom"
-                      3: (0, -1)  # "left"
-                      }
+direction_encoding = {
+    0: (-1, 0),  # "up"
+    1: (0, 1),  # "right"
+    2: (1, 0),  # "bottom"
+    3: (0, -1),  # "left"
+}
 
 
 class TwoPlayerSnakeGame:
@@ -35,16 +36,18 @@ class TwoPlayerSnakeGame:
 
     def step(self, action1, action2):
         # if the new action is the opposite of the previous one, it means we keep the previous one
-        if not (action1+2)%4 == self.p1_direction:
+        if not (action1 + 2) % 4 == self.p1_direction:
             self.p1_direction = action1
-        if not (action2+2)%4 == self.p2_direction:
+        if not (action2 + 2) % 4 == self.p2_direction:
             self.p2_direction = action2
 
-
-
         # update the positions
-        self.p1_positions = self.extend_snake(self.p1_positions, self.p1_direction, self.p1_ate_apple)
-        self.p2_positions = self.extend_snake(self.p2_positions, self.p2_direction, self.p2_ate_apple)
+        self.p1_positions = self.extend_snake(
+            self.p1_positions, self.p1_direction, self.p1_ate_apple
+        )
+        self.p2_positions = self.extend_snake(
+            self.p2_positions, self.p2_direction, self.p2_ate_apple
+        )
         p1_crashed = p2_crashed = False
         # test if the last move lead to a position that collapses with each other = crash
         if self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions:
@@ -117,7 +120,8 @@ class TwoPlayerSnakeGame:
         while True:
             self.apple_position = (np.random.randint(self.n), np.random.randint(self.m))
             if (self.apple_position not in self.p1_positions) and (
-                    self.apple_position not in self.p2_positions):
+                self.apple_position not in self.p2_positions
+            ):
                 break
 
     def extend_snake(self, positions, direction, ate_apple):
@@ -125,8 +129,10 @@ class TwoPlayerSnakeGame:
 
         current_position_x, current_position_y = positions[-1]
         move_x, move_y = direction_encoding[direction]
-        next_position = ((current_position_x + move_x) % self.n,
-                         (current_position_y + move_y) % self.m)
+        next_position = (
+            (current_position_x + move_x) % self.n,
+            (current_position_y + move_y) % self.m,
+        )
         # extend snake
         positions.append(next_position)
 
@@ -136,17 +142,17 @@ class TwoPlayerSnakeGame:
         return positions
 
     def display(self):
-        output_str = " " + "___"*self.m + "\n"
+        output_str = " " + "___" * self.m + "\n"
         for x in range(self.n):
             output_str += "|"
             for y in range(self.m):
-                if self.board[x,y] == 0:
-                    output_str+=" . "
-                elif self.board[x,y] == 2:
+                if self.board[x, y] == 0:
+                    output_str += " . "
+                elif self.board[x, y] == 2:
                     output_str += " O "
-                elif self.board[x,y] == 1:
+                elif self.board[x, y] == 1:
                     output_str += " A "
-                elif self.board[x,y] == -1:
+                elif self.board[x, y] == -1:
                     output_str += " B "
                 elif self.board[x, y] == 3:
                     output_str += " X "
@@ -155,5 +161,5 @@ class TwoPlayerSnakeGame:
             output_str += "|\n"
         output_str += " "
 
-        output_str+= "———"*self.m +"\n\n \r"
+        output_str += "———" * self.m + "\n\n \r"
         sys.stdout.write(output_str)
