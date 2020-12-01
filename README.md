@@ -1,5 +1,5 @@
 # snake-autoplay-RL
-Learning via auto-play a strategy for two player snake game with reinforcement learning. 
+Learning via auto-play a strategy for two player snake game with reinforcement learning.
 
 
 - [X] add Blak to git projet : https://github.com/psf/black

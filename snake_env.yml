@@ -14,3 +14,5 @@ dependencies:
   - tqdm
   - jupyter
   - black
+  - pre-commit
+  - virtualenv=20.0.33
