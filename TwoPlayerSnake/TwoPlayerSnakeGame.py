@@ -13,17 +13,19 @@ direction_encoding = {
 
 
 class TwoPlayerSnakeGame:
-    def __init__(self, n=20, m=30):
-        self.n = n
-        self.m = m
+    def __init__(self, board_x=20, board_y=30):
+        self.board_x = board_x
+        self.board_y = board_y
         self.board = None  # shape will be (n, m)
+        self.init_game()
 
+    def init_game(self):
         # set player 1 initial position and direction
-        self.p1_positions = [(n // 5, m // 5)]
+        self.p1_positions = [(self.board_x // 5, self.board_y // 5)]
         self.p1_direction = 1
         self.p1_ate_apple = False
         # set player 2 initial position
-        self.p2_positions = [(4 * n // 5, 4 * m // 5)]
+        self.p2_positions = [(4 * self.board_x // 5, 4 * self.board_y // 5)]
         self.p2_direction = 3
         self.p2_ate_apple = False
 
@@ -55,6 +57,7 @@ class TwoPlayerSnakeGame:
         if self.p2_positions[-1] in self.p1_positions + self.p2_positions[:-1]:
             p2_crashed = True
 
+        # status is the winning player, or 3 if both lost
         if p1_crashed and p2_crashed:
             self.status = 3
         elif p1_crashed:
@@ -88,7 +91,7 @@ class TwoPlayerSnakeGame:
         self.status = 0
 
     def set_board_from_positions(self):
-        self.board = np.zeros((self.n, self.m))
+        self.board = np.zeros((self.board_x, self.board_y))
         for p in self.p1_positions:
             self.board[p] = 1
         for p in self.p2_positions:
@@ -103,6 +106,35 @@ class TwoPlayerSnakeGame:
 
         return self.board
 
+    def set_apple_position(self):
+        # TODO: replace with a random selection among the complementary set of the positions
+        while True:
+            self.apple_position = (
+                np.random.randint(self.board_x),
+                np.random.randint(self.board_y),
+            )
+            if (self.apple_position not in self.p1_positions) and (
+                self.apple_position not in self.p2_positions
+            ):
+                break
+
+    def extend_snake(self, positions, direction, ate_apple):
+        # Note: input is modified by this, which is expected for now
+
+        current_position_x, current_position_y = positions[-1]
+        move_x, move_y = direction_encoding[direction]
+        next_position = (
+            (current_position_x + move_x) % self.board_x,
+            (current_position_y + move_y) % self.board_y,
+        )
+        # extend snake
+        positions.append(next_position)
+
+        # move the tail if no apple was eaten
+        if not ate_apple:
+            del positions[0]
+        return positions
+
     def get_board(self, player_id):
         if player_id == 1:
             return self.board
@@ -115,37 +147,14 @@ class TwoPlayerSnakeGame:
         else:
             raise KeyError(f"Unknown player_id: {player_id}")
 
-    def set_apple_position(self):
-        # TODO: replace with a random selection among the complementary set of the positions
-        while True:
-            self.apple_position = (np.random.randint(self.n), np.random.randint(self.m))
-            if (self.apple_position not in self.p1_positions) and (
-                self.apple_position not in self.p2_positions
-            ):
-                break
-
-    def extend_snake(self, positions, direction, ate_apple):
-        # Note: input is modified by this, which is expected for now
-
-        current_position_x, current_position_y = positions[-1]
-        move_x, move_y = direction_encoding[direction]
-        next_position = (
-            (current_position_x + move_x) % self.n,
-            (current_position_y + move_y) % self.m,
-        )
-        # extend snake
-        positions.append(next_position)
-
-        # move the tail if no apple was eaten
-        if not ate_apple:
-            del positions[0]
-        return positions
+    def get_board_dimensions(self):
+        return self.board_x, self.board_y
 
     def display(self):
-        output_str = " " + "___" * self.m + "\n"
-        for x in range(self.n):
+        output_str = " " + "___" * self.board_y + "\n"
+        for x in range(self.board_x):
             output_str += "|"
-            for y in range(self.m):
+            for y in range(self.board_y):
                 if self.board[x, y] == 0:
                     output_str += " . "
                 elif self.board[x, y] == 2:
@@ -161,5 +170,5 @@ class TwoPlayerSnakeGame:
             output_str += "|\n"
         output_str += " "
 
-        output_str += "———" * self.m + "\n\n \r"
+        output_str += "———" * self.board_y + "\n\n \r"
         sys.stdout.write(output_str)

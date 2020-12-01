@@ -5,7 +5,7 @@ Learning via auto-play a strategy for two player snake game with reinforcement l
 - [X] add Blak to git projet : https://github.com/psf/black
 - [X] Add requirements yaml file for conda env python 3.7 and numpy for now and black.
 - [X] add env to pycharma nd add black directly in it https://github.com/psf/black/blob/master/docs/editor_integration.md
-- [ ] add github actions for black
+- [X] add github actions for black
 - [X] create logic for the game:
   - [X] initialization of the board
   - [X] keep track of whose turn it is and who is playing at each time
@@ -18,3 +18,4 @@ Learning via auto-play a strategy for two player snake game with reinforcement l
 - [ ] Create an auto-play scheme that gives (s, a, r) triplets (embed it in the Arena)
 - [ ] Create a coach that lauches a serie of autoplays and sequentially train the model, with a simple agent update rule.
 - [ ] Give credit to alpha zero implementation
+- [ ] Add logging
