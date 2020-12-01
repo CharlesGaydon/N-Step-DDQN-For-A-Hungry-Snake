@@ -2,9 +2,9 @@
 Learning via auto-play a strategy for two player snake game with reinforcement learning. 
 
 
-- [ ] add Blak to git projet : https://github.com/psf/black
-- [ ] Add requirements yaml file for conda env python 3.7 and numpy for now and black.
-- [ ] add env to pycharma nd add black directly in it https://github.com/psf/black/blob/master/docs/editor_integration.md
+- [X] add Blak to git projet : https://github.com/psf/black
+- [X] Add requirements yaml file for conda env python 3.7 and numpy for now and black.
+- [X] add env to pycharma nd add black directly in it https://github.com/psf/black/blob/master/docs/editor_integration.md
 - [ ] add github actions for black
 - [X] create logic for the game:
   - [X] initialization of the board
