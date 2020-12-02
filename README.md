@@ -23,6 +23,9 @@ Learning via auto-play a strategy for two player snake game with reinforcement l
   - [ ] add early stopping
   - [ ] add decreasing probability to select the samples
   - [ ] add a parameter threshold to only use most recent examples
+- [ ] Reinforcement Learning:
+  - [ ] Create a NN based Agent, which gets the game and the NNetWrapper OR Modify the wrapper directly by adding decide method
+  - [ ] Distinguish : the NNET which approximate state value using pi * states values VS the policymaker=agent which give final proba
 - [X] Create a pit option to compare model agent with a random player
 - [X] Create an auto-play scheme that gives (s, a, r) triplets (embed it in the Arena)
 - [X] Create a coach that lauches a serie of autoplays and sequentially train the model, with a simple agent update rule.

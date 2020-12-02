@@ -72,11 +72,11 @@ class TwoPlayerSnakeArena:
                 draws += 1
             stats.append(self.game.get_game_stats())
         if verbose:
-            print(f"Results wins|draws|loss: {wins}|{draws}|{loss} vs previous nnet.\n")
             m1, m2 = (
                 np.mean([s[0] for s in stats]).round(2),
                 np.mean([s[1] for s in stats]).round(2),
             )
-            print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
             print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
+            print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
+            print(f"Results wins|draws|loss: {wins}|{draws}|{loss} vs other player.\n")
         return wins, draws, loss, stats

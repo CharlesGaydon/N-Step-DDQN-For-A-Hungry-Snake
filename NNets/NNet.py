@@ -43,7 +43,6 @@ class NNetWrapper:
         # Todo: here select only a subset of examples for efficiency ! Recall
         # Here only the last 1000 examples are used !!!
         # TODO: add early stopping
-        print(len(examples))
 
         input_boards, target_pis, target_vs = list(zip(*examples))
         input_boards = np.asarray(input_boards)

@@ -12,6 +12,7 @@ def main():
         {
             "numIters": 50,
             "numEps": 10,  # Number of complete self-play games to simulate during a new iteration.
+            "maxPropEpsWithDraws": 0.25,  # when to ignore new experience resulting from a draw
             "tempThreshold": 5,  # Threshold for making greedy actions in the self-play games
             "updateThreshold": 0.50,
             # During arena playoff, new neural net will be accepted if threshold or more of games are won.

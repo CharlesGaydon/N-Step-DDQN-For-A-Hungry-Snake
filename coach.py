@@ -19,8 +19,15 @@ class Coach:
         arena = TwoPlayerSnakeArena(self.nnet, self.pnet, self.game)
 
         for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
-            for self_play_ in tqdm(range(self.args.numIters), desc="Self play"):
+            curr_nb_of_draws = 0
+            for self_play_ in tqdm(range(self.args.numEps), desc="Self play"):
                 arena.play_game(keep_track_of_historic=True, display=False)
+                if arena.game.status == 3:
+                    curr_nb_of_draws += 1
+                    if (
+                        self.args.maxPropEpsWithDraws * self.args.numEps
+                    ) < curr_nb_of_draws:
+                        continue
                 self.train_examples_history += arena.train_examples
                 # TODO: test for size of history and update in consequence
                 # TODO: change this selection of examples
