@@ -32,14 +32,9 @@ class Coach:
 
             # compare to the previous one
             # TODO: add logs of proportion of results
-            wins, draws, loss, stats = arena.compare_two_models(self.args.arenaCompare)
-            print(f"Results wins|draws|loss: {wins}|{draws}|{loss} vs previous nnet.\n")
-            m1, m2 = (
-                np.mean([s[0] for s in stats]).round(2),
-                np.mean([s[1] for s in stats]).round(2),
+            wins, draws, loss, stats = arena.compare_two_models(
+                self.args.arenaCompare, verbose=True
             )
-            print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
-            print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
             if (
                 wins + loss == 0
                 or float(wins) / (wins + loss) < self.args.updateThreshold
@@ -56,3 +51,4 @@ class Coach:
                 self.nnet.save_checkpoint(
                     folder=self.args.checkpoint, filename="best.hdf5"
                 )
+                self.pnet.set_weights(self.nnet)

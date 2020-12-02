@@ -43,7 +43,7 @@ class TwoPlayerSnakeArena:
 
         if keep_track_of_historic:
             if self.game.status == 3:
-
+                # TODO: try ignoring draws to have more balancer examples !
                 def scorer(_):
                     return 0
 
@@ -56,11 +56,11 @@ class TwoPlayerSnakeArena:
                 [x[0], x[2], scorer(x[1])] for x in self.train_examples
             ]
 
-    def compare_two_models(self, nb_games):
+    def compare_two_models(self, nb_games, verbose=True):
         wins = 0
         draws = 0
         loss = 0
-        stats_list = []
+        stats = []
         for comparison_play in tqdm(range(nb_games), desc="Compare models"):
             self.play_game(keep_track_of_historic=False, display=False)
             r = self.game.status
@@ -70,5 +70,13 @@ class TwoPlayerSnakeArena:
                 loss += 1
             elif r == 3:
                 draws += 1
-            stats_list.append(self.game.get_game_stats())
-        return wins, draws, loss, stats_list
+            stats.append(self.game.get_game_stats())
+        if verbose:
+            print(f"Results wins|draws|loss: {wins}|{draws}|{loss} vs previous nnet.\n")
+            m1, m2 = (
+                np.mean([s[0] for s in stats]).round(2),
+                np.mean([s[1] for s in stats]).round(2),
+            )
+            print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
+            print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
+        return wins, draws, loss, stats
