@@ -19,7 +19,7 @@ class TwoPlayerSnakeArena:
         self.game = game
         self.train_examples = []
 
-    def play_game(self, mode="self_play"):
+    def play_game(self, keep_track_of_historic=True, display=False):
 
         self.game.init_game()
         self.train_examples = []
@@ -32,29 +32,37 @@ class TwoPlayerSnakeArena:
             action_p1 = np.random.choice(4, p=pi_p1 / pi_p1.sum())
             action_p2 = np.random.choice(4, p=pi_p2 / pi_p2.sum())
 
-            self.game.step(action1=action_p1, action2=action_p2)
-            if mode == "display":
-                self.game.display()
-                time.sleep(0.2)
-            elif mode == "self_play":
-                self.train_examples.append([board_p1, 1, action_p1, None])
-                self.train_examples.append([board_p2, 2, action_p2, None])
-            elif mode == "compare":
-                pass
-            else:
-                raise ValueError(f"Unknown mode for play_game function: {mode}")
-        if self.game.status == 3:
-            scorer = lambda _: 0  # both lost
-        else:
-            scorer = lambda player_id: player_id == self.game.status
-        self.train_examples = [[x[0], x[2], scorer(x[1])] for x in self.train_examples]
+            self.game.step(action1=action_p1, action2=action_p2, display=display)
+            if keep_track_of_historic:
+                self.train_examples.append([board_p1, 1, pi_p1, None])
+                self.train_examples.append([board_p2, 2, pi_p2, None])
 
-    def play_games(self, nb_games):
+            if display:
+                self.game.display()
+                time.sleep(0.1)
+
+        if keep_track_of_historic:
+            if self.game.status == 3:
+
+                def scorer(_):
+                    return 0
+
+            else:
+
+                def scorer(player_id):
+                    return (player_id == self.game.status) * 1
+
+            self.train_examples = [
+                [x[0], x[2], scorer(x[1])] for x in self.train_examples
+            ]
+
+    def compare_two_models(self, nb_games):
         wins = 0
         draws = 0
         loss = 0
-        for comparison_play in tqdm(nb_games, desc="Compare models"):
-            self.play_game(mode="compare")
+        stats_list = []
+        for comparison_play in tqdm(range(nb_games), desc="Compare models"):
+            self.play_game(keep_track_of_historic=False, display=False)
             r = self.game.status
             if r == 1:
                 wins += 1
@@ -62,4 +70,5 @@ class TwoPlayerSnakeArena:
                 loss += 1
             elif r == 3:
                 draws += 1
-        return wins, draws, loss
+            stats_list.append(self.game.get_game_stats())
+        return wins, draws, loss, stats_list

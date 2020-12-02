@@ -36,7 +36,7 @@ class TwoPlayerSnakeGame:
         # 0: ongoing, 1: p1 wins, 2: p2 wins, 3: both players lose and it's a draw
         self.status = 0
 
-    def step(self, action1, action2):
+    def step(self, action1, action2, display=False):
         # if the new action is the opposite of the previous one, it means we keep the previous one
         if not (action1 + 2) % 4 == self.p1_direction:
             self.p1_direction = action1
@@ -66,10 +66,11 @@ class TwoPlayerSnakeGame:
             self.status = 1
 
         if any((p1_crashed, p2_crashed)):
-            print("Final state:")
-            print("A:", self.p1_positions, self.p1_direction)
-            print("B", self.p2_positions, self.p2_direction)
-            print(f"Final game status : {self.status}")
+            if display:
+                print("Final state:")
+                print("A:", self.p1_positions, self.p1_direction)
+                print("B", self.p2_positions, self.p2_direction)
+                print(f"Final game status : {self.status}")
             self.set_board_from_positions()
             return
 
@@ -149,6 +150,10 @@ class TwoPlayerSnakeGame:
 
     def get_board_dimensions(self):
         return self.board_x, self.board_y
+
+    def get_game_stats(self):
+        stats = [len(self.p1_positions), len(self.p2_positions)]
+        return stats
 
     def display(self):
         output_str = " " + "___" * self.board_y + "\n"

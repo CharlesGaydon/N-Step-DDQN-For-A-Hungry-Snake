@@ -12,14 +12,21 @@ Learning via auto-play a strategy for two player snake game with reinforcement l
   - [X] keep track of whose turn it is and who is playing at each time
 - [X] Create a random player strategy
 - [X] Create a pit.py script to have random player fight each other
+- [X] Add evaluation of agents at each iteration alognside comparison of models
 - [X] Create a NNEt which acts as an Agent
   - [ ] Add additional metadata to the agent input, which size is a parameter of the agent's model
-  - [ ] Create a model class that can be trained
-  - [ ] Check  checkpoints saving
+  - [X] Create a model class that can be trained
+  - [X] Check  checkpoints saving
+  - [X] Test loading saved model in pit
+- [ ] Add a conf folder with full training and test confs, and a global mode that can be activated as param of main and pit
+- Model:
+  - [ ] add early stopping
+  - [ ] add decreasing probability to select the samples
+  - [ ] add a parameter threshold to only use most recent examples
 - [X] Create a pit option to compare model agent with a random player
 - [X] Create an auto-play scheme that gives (s, a, r) triplets (embed it in the Arena)
 - [X] Create a coach that lauches a serie of autoplays and sequentially train the model, with a simple agent update rule.
-- [ ] Give credit to alpha zero implementation
+- [X] Give credit to alpha zero implementation
 - [ ] Add logging
 - [ ] Add some documentation
   - Document functions
