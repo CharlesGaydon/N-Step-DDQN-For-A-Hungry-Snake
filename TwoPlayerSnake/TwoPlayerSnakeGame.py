@@ -14,7 +14,10 @@ class TwoPlayerSnakeGame:
     def __init__(self, board_x=20, board_y=30):
         self.board_x = board_x
         self.board_y = board_y
+        self.action_size = 4
         self.board = None  # shape will be (n, m)
+        self.status = None
+        self.episode_duration = 0
         self.init_game()
 
     def init_game(self):
@@ -33,13 +36,16 @@ class TwoPlayerSnakeGame:
 
         # 0: ongoing, 1: p1 wins, 2: p2 wins, 3: both players lose and it's a draw
         self.status = 0
+        self.episode_duration = 0
 
-    def step(self, action1, action2, display=False):
+    def step(self, a1, a2, display=False):
+        self.episode_duration += 1
+
         # if the new action is the opposite of the previous one, it means we keep the previous one
-        if not (action1 + 2) % 4 == self.p1_direction:
-            self.p1_direction = action1
-        if not (action2 + 2) % 4 == self.p2_direction:
-            self.p2_direction = action2
+        if not (a1 + 2) % 4 == self.p1_direction:
+            self.p1_direction = a1
+        if not (a2 + 2) % 4 == self.p2_direction:
+            self.p2_direction = a2
 
         # update the positions
         self.p1_positions = self.extend_snake(
@@ -70,7 +76,7 @@ class TwoPlayerSnakeGame:
                 print("B", self.p2_positions, self.p2_direction)
                 print(f"Final game status : {self.status}")
             self.set_board_from_positions()
-            return
+            return (-100 * p1_crashed, -100 * p2_crashed)
 
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
@@ -85,9 +91,12 @@ class TwoPlayerSnakeGame:
             self.p1_ate_apple = False
             self.p2_ate_apple = False
 
-        # return 0 so that the game can continue:
+        # status is 0 and  the game can continue:
         self.set_board_from_positions()
         self.status = 0
+
+        # return a reward if an apple is eaten
+        return self.p1_ate_apple * 10, self.p2_ate_apple * 10
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))
@@ -136,7 +145,7 @@ class TwoPlayerSnakeGame:
 
     def get_board(self, player_id):
         if player_id == 1:
-            return self.board
+            return self.board.copy()
         elif player_id == 2:
             # reverse the board encoding to get perspective of player 2
             reverse_board = self.board.copy()

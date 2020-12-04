@@ -33,30 +33,48 @@ args = dotdict(
 
 class NNetWrapper:
     def __init__(self, game):
-        self.nnet = snet(game, args)
         self.board_x, self.board_y = game.get_board_dimensions()
-        self.action_size = 4
+        # models
+        self.nnet = snet(game, args)
+        self.target_nnet = snet(game, args)
+        self.update_target_nnet()
+        self.optimization_step_taken = 0
 
-    def train(self, examples):
+    def optimize_network(self, experiences, args):
         """
         examples: list of examples, each example is of form (board, pi, v)
         """
-        # Todo: here select only a subset of examples for efficiency ! Recall
-        # Here only the last 1000 examples are used !!!
-        # TODO: add early stopping
+        sample_idx = np.random.choice(len(experiences), args.batch_size)
+        sample = []
+        for idx in sample_idx:
+            sample.append(experiences[idx])
 
-        input_boards, target_pis, target_vs = list(zip(*examples))
-        input_boards = np.asarray(input_boards)
-        target_pis = np.asarray(target_pis)
-        target_vs = np.asarray(target_vs)
+        X_batch = []
+        Y_batch = []
+
+        for last_s, last_a, r, terminal, s in sample:
+            q_values_target = self.predict_action_values_from_state(
+                last_s, use_target_nnet=True
+            )
+            if terminal:
+                target_q_s_a = r
+            else:
+                max_q_value = np.max(
+                    self.predict_action_values_from_state(s, use_target_nnet=False)
+                )
+                target_q_s_a = r + args.discount_factor * max_q_value
+            q_values_target[last_a] = target_q_s_a
+            # fill batch
+            X_batch.append(last_s)
+            Y_batch.append(q_values_target)
+
+        X_batch = np.array(X_batch, dtype=np.float64)
+        Y_batch = np.array(Y_batch, dtype=np.float64)
         self.nnet.model.fit(
-            x=input_boards,
-            y=[target_pis, target_vs],
-            batch_size=args.batch_size,
-            epochs=args.epochs,
+            X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=0
         )
 
-    def predict(self, game, perspective=None):
+    def predict_action_values_from_game(self, game, perspective=None):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
@@ -67,32 +85,51 @@ class NNetWrapper:
         board = board[np.newaxis, :, :]
 
         # run
-        pi_pred, v_pred = self.nnet.model.predict(board)
+        v_pred = self.nnet.model.predict(board)
 
-        return pi_pred[0], v_pred[0]
+        return v_pred[0]
 
-    def make_policy_from_q_values(self, game, perspective=None):
+    def predict_action_values_from_state(self, board, use_target_nnet):
+        if use_target_nnet:
+            current_model = self.target_nnet.model
+        else:
+            current_model = self.nnet.model
+        board = board[np.newaxis, :, :]  # useful ?
+        v_pred = current_model.predict(board)
+
+        return v_pred[0]
+
+    def epsilon_greedy_policy(self, game, args, perspective=None):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
         """
-        # TODO long terme : replace by a kind of planning system ?
-        q = np.zeros((4, 4))
-        for a1 in range(4):
-            for a2 in range(4):
-                # générer le board résultant
-                game_bis = deepcopy(game)
-                game_bis.step(a1, a2)
-                # évaluer ce board
-                _, q[a1, a2] = self.predict(game_bis, perspective=perspective)
-        q = q.mean(axis=1)
-        q = q - q.min()
-        q_mean = q.mean()
-        q = q / q_mean
-        return q, q_mean
+        # todo: add decaying epsilon
+        if np.random.random() < args.epsilon:
+            return np.random.choice(4)
+        else:
+            return self.greedy_policy(game, args, perspective=perspective)
+
+    def greedy_policy(self, game, args, perspective=None):
+        """
+        game: snake game
+        perspective : 1 or 2 depending on the considered player
+        """
+
+        q = self.predict_action_values_from_game(game, perspective=perspective)
+        # todo: replace by a nice regularized softmax here, with tau parameter for temperature
+        q = np.exp(q / args.temperature)
+        q = q / q.sum()
+        # select optimal action
+        a = np.random.choice(range(4), p=q)
+
+        return a
 
     def set_weights(self, other_nnet_wrapper):
         self.nnet.model.set_weights(other_nnet_wrapper.nnet.model.get_weights())
+
+    def update_target_nnet(self):
+        self.target_nnet.model.set_weights(self.nnet.model.get_weights())
 
     def save_checkpoint(self, folder="./NNets/checkpoint", filename="checkpoint.hdf5"):
         filepath = os.path.join(folder, filename)

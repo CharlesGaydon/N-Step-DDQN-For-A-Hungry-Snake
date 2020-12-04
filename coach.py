@@ -15,30 +15,14 @@ class Coach:
 
     def learn(self):
 
-        arena = TwoPlayerSnakeArena(self.nnet, self.pnet, self.game)
+        arena = TwoPlayerSnakeArena(self.nnet, self.pnet, self.game, self.args)
 
         for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
-            curr_nb_of_draws = 0
-            for self_play_ in tqdm(range(self.args.numEps), desc="Self play"):
-                arena.play_game(training_mode=True, display=False)
-                if arena.game.status == 3:
-                    curr_nb_of_draws += 1
-                    if (
-                        self.args.maxPropEpsWithDraws * self.args.numEps
-                    ) < curr_nb_of_draws:
-                        continue
-                self.train_examples_history += arena.train_examples
-                # TODO: test for size of history and update in consequence
-                # TODO: change this selection of examples
-                self.train_examples_history = self.train_examples_history[-3000:]
-
-            # train the new NNets
-            print(f"Training on {len(self.train_examples_history)} examples.")
-            self.nnet.train(self.train_examples_history)
+            arena.deep_q_learning()
 
             # compare to the previous one
             # TODO: add logs of proportion of results
-            wins, draws, loss, stats = arena.compare_two_models(
+            wins, draws, loss, stats = arena.compare_two_models_n_times(
                 self.args.arenaCompare, verbose=True
             )
             if (

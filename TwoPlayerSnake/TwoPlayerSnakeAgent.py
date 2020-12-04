@@ -7,7 +7,7 @@ class RandomPlayer:
         self.action = None
         pass
 
-    def predict(self, _, perspective=None):
+    def greedy_policy(self, a_, b_, perspective=None):
         # later this should have additional args that extend the board
-        self.pi = np.random.random(4)
-        return self.pi, None
+        self.action = np.random.choice(4)
+        return self.action

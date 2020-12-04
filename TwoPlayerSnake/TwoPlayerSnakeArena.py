@@ -3,6 +3,9 @@ import time
 import numpy as np
 from tqdm import tqdm
 
+# Using experience replay and Target Network as mentionned here:
+# https://fr.slideshare.net/LeejinJeong/deep-sarsa-deep-qlearning-dqn-102870392
+
 
 class TwoPlayerSnakeArena:
     """
@@ -13,66 +16,75 @@ class TwoPlayerSnakeArena:
     Player are object with predict method that takes board as argument and outputs a policy.
     """
 
-    def __init__(self, p1, p2, game):
-        self.player1 = p1
-        self.player2 = p2
+    def __init__(self, nnet, player_2, game, args):
+        self.nnet = nnet
+        self.player_2 = player_2
         self.game = game
         self.train_examples = []
+        self.args = args
 
-    def play_game(self, training_mode=True, display=False):
-
-        self.game.init_game()
+    def deep_q_learning(self):
         self.train_examples = []
 
+        for _ in tqdm(range(self.args.num_episodes), desc="Self Play and Learn"):
+
+            self.game.init_game()
+            # store init state and store s
+            last_s1 = self.game.get_board(1)
+            last_s2 = self.game.get_board(2)
+
+            while not self.game.status:
+                # select next action for both player
+                action_p1 = self.nnet.epsilon_greedy_policy(
+                    self.game, self.args, perspective=1
+                )
+                action_p2 = self.player_2.epsilon_greedy_policy(
+                    self.game, self.args, perspective=2
+                )
+                # execute and get reward for both snakes
+                r1, r2 = self.game.step(a1=action_p1, a2=action_p2, display=False)
+                s1 = self.game.get_board(1)
+                s2 = self.game.get_board(2)
+
+                game_ended = 1 * (self.game.status > 0)
+                sarsa1 = (last_s1, action_p1, r1, game_ended, s1)
+                sarsa2 = (last_s2, action_p2, r2, game_ended, s2)
+                self.train_examples.extend([sarsa1, sarsa2])
+
+                if len(self.train_examples) > 10 * self.args.batch_size:
+                    # start learning when sufficient examples
+                    self.nnet.optimize_network(self.train_examples, self.args)
+
+                # update last state
+                last_s1 = s1
+                last_s2 = s2
+                if self.game.episode_duration > self.args.max_episode_length:
+                    break
+            # update after each episode
+            self.nnet.update_target_nnet()
+
+    def compare_two_models(self, display=False):
+
+        self.game.init_game()
+
         while not self.game.status:
-            if not training_mode:
-                # we predict directly using the NN
-                pi_p1, _ = self.player1.predict(self.game, perspective=1)
-                pi_p2, _ = self.player2.predict(self.game, perspective=2)
-            else:
-                # we use the v values
-                pi_p1, _ = self.player1.make_policy_from_q_values(
-                    self.game, perspective=1
-                )
-                pi_p2, _ = self.player2.make_policy_from_q_values(
-                    self.game, perspective=2
-                )
-                # we remember the decisions we took
-                self.train_examples.append([self.game.get_board(1), 1, pi_p1, None])
-                self.train_examples.append([self.game.get_board(2), 2, pi_p2, None])
+            # we predict directly using the NN
+            action_p1 = self.nnet.greedy_policy(self.game, self.args, perspective=1)
+            action_p2 = self.player_2.greedy_policy(self.game, self.args, perspective=2)
 
-            # make the decision and update the game
-            action_p1 = np.random.choice(4, p=pi_p1 / pi_p1.sum())
-            action_p2 = np.random.choice(4, p=pi_p2 / pi_p2.sum())
-
-            self.game.step(action1=action_p1, action2=action_p2, display=display)
+            self.game.step(a1=action_p1, a2=action_p2, display=display)
 
             if display:
                 self.game.display()
                 time.sleep(0.1)
 
-        if training_mode:
-            if self.game.status == 3:
-                # TODO: try ignoring draws to have more balancer examples !
-                def scorer(_):
-                    return 0
-
-            else:
-
-                def scorer(player_id):
-                    return (-1) ** (player_id != self.game.status)
-
-            self.train_examples = [
-                [x[0], x[2], scorer(x[1])] for x in self.train_examples
-            ]
-
-    def compare_two_models(self, nb_games, verbose=True):
+    def compare_two_models_n_times(self, nb_games, verbose=True):
         wins = 0
         draws = 0
         loss = 0
         stats = []
-        for comparison_play in tqdm(range(nb_games), desc="Compare models"):
-            self.play_game(training_mode=False, display=False)
+        for _ in tqdm(range(nb_games), desc="Compare models"):
+            self.compare_two_models(display=False)
             r = self.game.status
             if r == 1:
                 wins += 1
