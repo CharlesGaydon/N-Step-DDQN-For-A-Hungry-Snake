@@ -51,7 +51,7 @@ class TwoPlayerSnakeArena:
                 sarsa2 = (last_s2, action_p2, r2, game_ended, s2)
                 self.train_examples.extend([sarsa1, sarsa2])
 
-                if len(self.train_examples) > 10 * self.args.batch_size:
+                if len(self.train_examples) > self.args.batch_size:
                     # start learning when sufficient examples
                     self.nnet.optimize_network(self.train_examples, self.args)
 
@@ -59,6 +59,10 @@ class TwoPlayerSnakeArena:
                 last_s1 = s1
                 last_s2 = s2
                 if self.game.episode_duration > self.args.max_episode_length:
+                    print(
+                        f"Episode lasted more that max_episode_length: "
+                        f"{self.game.episode_duration}/{self.args.max_episode_length}"
+                    )
                     break
             # update after each episode
             self.nnet.update_target_nnet()
@@ -83,22 +87,25 @@ class TwoPlayerSnakeArena:
         draws = 0
         loss = 0
         stats = []
-        for _ in tqdm(range(nb_games), desc="Compare models"):
-            self.compare_two_models(display=False)
-            r = self.game.status
-            if r == 1:
-                wins += 1
-            elif r == 2:
-                loss += 1
-            elif r == 3:
-                draws += 1
-            stats.append(self.game.get_game_stats())
-        if verbose:
-            m1, m2 = (
-                np.mean([s[0] for s in stats]).round(2),
-                np.mean([s[1] for s in stats]).round(2),
-            )
-            print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
-            print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
-            print(f"Results wins|draws|loss: {wins}|{draws}|{loss} vs other player.\n")
+        if nb_games != 0:
+            for _ in tqdm(range(nb_games), desc="Compare models"):
+                self.compare_two_models(display=False)
+                r = self.game.status
+                if r == 1:
+                    wins += 1
+                elif r == 2:
+                    loss += 1
+                elif r == 3:
+                    draws += 1
+                stats.append(self.game.get_game_stats())
+            if verbose:
+                m1, m2 = (
+                    np.mean([s[0] for s in stats]).round(2),
+                    np.mean([s[1] for s in stats]).round(2),
+                )
+                # print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
+                print(f"Average lenghts of p1 vs. p2: {m1} - {m2}")
+                print(
+                    f"Results wins|draws|loss: {wins}|{draws}|{loss} vs other player.\n"
+                )
         return wins, draws, loss, stats

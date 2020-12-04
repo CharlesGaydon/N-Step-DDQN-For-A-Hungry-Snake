@@ -76,7 +76,7 @@ class TwoPlayerSnakeGame:
                 print("B", self.p2_positions, self.p2_direction)
                 print(f"Final game status : {self.status}")
             self.set_board_from_positions()
-            return (-100 * p1_crashed, -100 * p2_crashed)
+            return (-200 * p1_crashed, -200 * p2_crashed)
 
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
@@ -96,7 +96,7 @@ class TwoPlayerSnakeGame:
         self.status = 0
 
         # return a reward if an apple is eaten
-        return self.p1_ate_apple * 10, self.p2_ate_apple * 10
+        return -1 + self.p1_ate_apple * 25, -1 + self.p2_ate_apple * 25
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))
