@@ -4,6 +4,7 @@ import time
 import numpy as np
 import sys
 import os
+from copy import deepcopy
 
 sys.path.append("..")
 from utils import dotdict
@@ -55,21 +56,40 @@ class NNetWrapper:
             epochs=args.epochs,
         )
 
-    def predict(self, board):
+    def predict(self, game, perspective=None):
         """
-        board: np array with board
+        game: snake game
+        perspective : 1 or 2 depending on the considered player
         """
-        # timing
-        start = time.time()
 
         # preparing input
+        board = game.get_board(perspective)
         board = board[np.newaxis, :, :]
 
         # run
-        pi, v = self.nnet.model.predict(board)
+        pi_pred, v_pred = self.nnet.model.predict(board)
 
-        # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
-        return pi[0], v[0]
+        return pi_pred[0], v_pred[0]
+
+    def make_policy_from_q_values(self, game, perspective=None):
+        """
+        game: snake game
+        perspective : 1 or 2 depending on the considered player
+        """
+        # TODO long terme : replace by a kind of planning system ?
+        q = np.zeros((4, 4))
+        for a1 in range(4):
+            for a2 in range(4):
+                # générer le board résultant
+                game_bis = deepcopy(game)
+                game_bis.step(a1, a2)
+                # évaluer ce board
+                _, q[a1, a2] = self.predict(game_bis, perspective=perspective)
+        q = q.mean(axis=1)
+        q = q - q.min()
+        q_mean = q.mean()
+        q = q / q_mean
+        return q, q_mean
 
     def set_weights(self, other_nnet_wrapper):
         self.nnet.model.set_weights(other_nnet_wrapper.nnet.model.get_weights())

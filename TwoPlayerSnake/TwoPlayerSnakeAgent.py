@@ -7,7 +7,7 @@ class RandomPlayer:
         self.action = None
         pass
 
-    def predict(self, _):
+    def predict(self, _, perspective=None):
         # later this should have additional args that extend the board
         self.pi = np.random.random(4)
         return self.pi, None

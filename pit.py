@@ -31,7 +31,7 @@ def main():
     p2 = RandomPlayer()
     arena = TwoPlayerSnakeArena(p1, p2, g)
     if args.mode == "game":
-        arena.play_game(keep_track_of_historic=False, display=True)
+        arena.play_game(training_mode=False, display=True)
     else:
         arena.compare_two_models(20, verbose=True)
 

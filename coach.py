@@ -10,9 +10,8 @@ class Coach:
         self.nnet = nnet
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
         self.args = args
-        self.train_examples_history = (
-            []
-        )  # history of examples from args.numItersForTrainExamplesHistory latest iterations
+        # history of examples from args.numItersForTrainExamplesHistory latest iterations
+        self.train_examples_history = []
 
     def learn(self):
 
@@ -21,7 +20,7 @@ class Coach:
         for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
             curr_nb_of_draws = 0
             for self_play_ in tqdm(range(self.args.numEps), desc="Self play"):
-                arena.play_game(keep_track_of_historic=True, display=False)
+                arena.play_game(training_mode=True, display=False)
                 if arena.game.status == 3:
                     curr_nb_of_draws += 1
                     if (

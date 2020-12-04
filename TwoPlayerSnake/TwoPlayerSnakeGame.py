@@ -2,8 +2,6 @@ import sys
 
 import numpy as np
 
-from utils import clear_stdout
-
 direction_encoding = {
     0: (-1, 0),  # "up"
     1: (0, 1),  # "right"
