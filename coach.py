@@ -25,7 +25,7 @@ class Coach:
             wins, draws, loss, stats = arena.compare_two_models_n_times(
                 self.args.arenaCompare, verbose=True
             )
-            if (wins + loss == 0 and self.args.updateThreshold > 0) or float(wins) / (
+            if (wins + loss == 0) or float(wins) / (
                 wins + loss
             ) < self.args.updateThreshold:
                 print("Reject the model.")

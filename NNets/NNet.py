@@ -71,7 +71,7 @@ class NNetWrapper:
         X_batch = np.array(X_batch, dtype=np.float64)
         Y_batch = np.array(Y_batch, dtype=np.float64)
         self.nnet.model.fit(
-            X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=0
+            X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=True
         )
 
     def predict_action_values_from_game(self, game, perspective=None):
