@@ -22,16 +22,16 @@ class TwoPlayerSnakeGame:
 
     def init_game(self):
         # set player 1 initial position and direction
+        self.p1_direction = 1
         self.p1_positions = [
             (self.board_x // 5, self.board_y // 5),
-            (self.board_x // 5 + 1, self.board_y // 5 + 1),
+            (self.board_x // 5, self.board_y // 5 + 1),
         ]
-        self.p1_direction = 1
         self.p1_ate_apple = False
         # set player 2 initial position
         self.p2_positions = [
             (4 * self.board_x // 5, 4 * self.board_y // 5),
-            (4 * self.board_x // 5 + 1, 4 * self.board_y // 5 + 1),
+            (4 * self.board_x // 5, 4 * self.board_y // 5 - 1),
         ]
         self.p2_direction = 3
         self.p2_ate_apple = False
@@ -165,8 +165,13 @@ class TwoPlayerSnakeGame:
         elif player_id == 2:
             # reverse the board encoding to get perspective of player 2
             reverse_board = self.board.copy()
-            reverse_board = -1 * reverse_board
-            reverse_board[reverse_board == -2] = 2
+            reverse_board[
+                (1 <= (reverse_board * reverse_board))
+                & ((reverse_board * reverse_board) <= 4)
+            ] = -reverse_board[
+                (1 <= (reverse_board * reverse_board))
+                & ((reverse_board * reverse_board) <= 4)
+            ]
             return reverse_board
         else:
             raise KeyError(f"Unknown player_id: {player_id}")
