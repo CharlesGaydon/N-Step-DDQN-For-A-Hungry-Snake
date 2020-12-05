@@ -60,12 +60,15 @@ class TwoPlayerSnakeGame:
         self.p2_positions = self.extend_snake(
             self.p2_positions, self.p2_direction, self.p2_ate_apple
         )
+
         p1_crashed = p2_crashed = False
         # test if the last move lead to a position that collapses with each other = crash
+        # or if snake went out of board
         if (self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions) or (
             self.is_out_of_board(self.p1_positions[-1])
         ):
             p1_crashed = True
+
         if (self.p2_positions[-1] in self.p1_positions + self.p2_positions[:-1]) or (
             self.is_out_of_board(self.p2_positions[-1])
         ):
@@ -85,7 +88,6 @@ class TwoPlayerSnakeGame:
                 print("A:", self.p1_positions, self.p1_direction)
                 print("B", self.p2_positions, self.p2_direction)
                 print(f"Final game status : {self.status}")
-            # self.set_board_from_positions()
             return (-35 * p1_crashed, -35 * p2_crashed)
 
         # test if the apple was caught and update in consequence
@@ -109,11 +111,11 @@ class TwoPlayerSnakeGame:
         return -0.25 + self.p1_ate_apple * 5, -0.25 + self.p2_ate_apple * 5
 
     def is_out_of_board(self, position):
-        try:
-            self.board[position]
-            return False
-        except IndexError:
+        if position[0] < 0 or self.board_x <= position[0]:
             return True
+        if position[1] < 0 or self.board_y <= position[1]:
+            return True
+        return False
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))

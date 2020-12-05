@@ -47,6 +47,7 @@ class TwoPlayerSnakeArena:
                 game_ended = 1 * (self.game.status > 0)
 
                 ### TODO: modify this to implement n-step q-learning
+
                 sarsa1 = (last_s1, action_p1, r1, game_ended, s1)
                 sarsa2 = (last_s2, action_p2, r2, game_ended, s2)
                 self.train_examples_memory.extend([sarsa1, sarsa2])

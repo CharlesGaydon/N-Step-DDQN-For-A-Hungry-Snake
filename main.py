@@ -14,7 +14,7 @@ args = dotdict(
         "discount_factor": 0.90,
         "batch_size": 64,
         "epsilon": 0.05,
-        "temperature": 0.75,
+        "temperature": 0.5,
         # During arena playoff, new neural net will be accepted if threshold or more of games are won.
         "arenaCompare": 11,  # Numbopter of games to play during arena play to determine if new net will be accepted.
         "checkpoint": "./NNEts/trained/",
