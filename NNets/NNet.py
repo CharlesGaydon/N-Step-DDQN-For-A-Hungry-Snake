@@ -19,31 +19,34 @@ Date: Jan 5, 2018.
 Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
 """
 
-args = dotdict(
+nnet_args = dotdict(
     {
-        "lr": 0.001,
-        "dropout": 0.3,
-        "epochs": 5,
-        "batch_size": 64,
+        "lr": 0.01,
+        "dropout": 0.25,
         "cuda": False,
         "num_channels": 15,
+        "mask_value": 424242,
     }
 )
 
 
 class NNetWrapper:
-    def __init__(self, game):
+    def __init__(self, game, load_best=False):
         self.board_x, self.board_y = game.get_board_dimensions()
         # models
-        self.nnet = snet(game, args)
-        self.target_nnet = snet(game, args)
+        self.nnet = snet(game, nnet_args)
+        self.target_nnet = snet(game, nnet_args)
         self.update_target_nnet()
         self.optimization_step_taken = 0
+        self.loss_historic = []
+        if load_best:
+            self.load_checkpoint(folder="./NNets/trained", filename="best.hdf5")
 
     def optimize_network(self, experiences, args):
         """
         examples: list of examples, each example is of form (board, pi, v)
         """
+        mask_value = self.nnet.args.mask_value
         sample_idx = np.random.choice(len(experiences), args.batch_size)
         sample = []
         for idx in sample_idx:
@@ -53,26 +56,28 @@ class NNetWrapper:
         Y_batch = []
 
         for last_s, last_a, r, terminal, s in sample:
-            q_values_target = self.predict_action_values_from_state(
-                last_s, use_target_nnet=True
-            )
+            q_values_target = np.array([mask_value, mask_value, mask_value, mask_value])
             if terminal:
                 target_q_s_a = r
             else:
                 max_q_value = np.max(
-                    self.predict_action_values_from_state(s, use_target_nnet=False)
+                    self.predict_action_values_from_state(s, use_target_nnet=True)
                 )
                 target_q_s_a = r + args.discount_factor * max_q_value
             q_values_target[last_a] = target_q_s_a
-            # fill batch
+
             X_batch.append(last_s)
             Y_batch.append(q_values_target)
 
         X_batch = np.array(X_batch, dtype=np.float64)
         Y_batch = np.array(Y_batch, dtype=np.float64)
-        self.nnet.model.fit(
-            X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=True
+        history = self.nnet.model.fit(
+            X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=False
         )
+        loss = history.history["loss"][0]
+        self.loss_historic.append(loss)
+        if len(self.loss_historic) > 100:
+            self.loss_historic.pop(0)  # remove the first one
 
     def predict_action_values_from_game(self, game, perspective=None):
         """
@@ -117,7 +122,7 @@ class NNetWrapper:
         """
 
         q = self.predict_action_values_from_game(game, perspective=perspective)
-        # todo: replace by a nice regularized softmax here, with tau parameter for temperature
+        q = q
         q = np.exp(q / args.temperature)
         q = q / q.sum()
         # select optimal action

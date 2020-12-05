@@ -22,11 +22,17 @@ class TwoPlayerSnakeGame:
 
     def init_game(self):
         # set player 1 initial position and direction
-        self.p1_positions = [(self.board_x // 5, self.board_y // 5)]
+        self.p1_positions = [
+            (self.board_x // 5, self.board_y // 5),
+            (self.board_x // 5 + 1, self.board_y // 5 + 1),
+        ]
         self.p1_direction = 1
         self.p1_ate_apple = False
         # set player 2 initial position
-        self.p2_positions = [(4 * self.board_x // 5, 4 * self.board_y // 5)]
+        self.p2_positions = [
+            (4 * self.board_x // 5, 4 * self.board_y // 5),
+            (4 * self.board_x // 5 + 1, 4 * self.board_y // 5 + 1),
+        ]
         self.p2_direction = 3
         self.p2_ate_apple = False
 
@@ -56,9 +62,13 @@ class TwoPlayerSnakeGame:
         )
         p1_crashed = p2_crashed = False
         # test if the last move lead to a position that collapses with each other = crash
-        if self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions:
+        if (self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions) or (
+            self.is_out_of_board(self.p1_positions[-1])
+        ):
             p1_crashed = True
-        if self.p2_positions[-1] in self.p1_positions + self.p2_positions[:-1]:
+        if (self.p2_positions[-1] in self.p1_positions + self.p2_positions[:-1]) or (
+            self.is_out_of_board(self.p2_positions[-1])
+        ):
             p2_crashed = True
 
         # status is the winning player, or 3 if both lost
@@ -75,8 +85,8 @@ class TwoPlayerSnakeGame:
                 print("A:", self.p1_positions, self.p1_direction)
                 print("B", self.p2_positions, self.p2_direction)
                 print(f"Final game status : {self.status}")
-            self.set_board_from_positions()
-            return (-200 * p1_crashed, -200 * p2_crashed)
+            # self.set_board_from_positions()
+            return (-35 * p1_crashed, -35 * p2_crashed)
 
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
@@ -96,16 +106,25 @@ class TwoPlayerSnakeGame:
         self.status = 0
 
         # return a reward if an apple is eaten
-        return -1 + self.p1_ate_apple * 25, -1 + self.p2_ate_apple * 25
+        return -0.25 + self.p1_ate_apple * 5, -0.25 + self.p2_ate_apple * 5
+
+    def is_out_of_board(self, position):
+        try:
+            self.board[position]
+            return False
+        except IndexError:
+            return True
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))
-        for p in self.p1_positions:
+        for p in self.p1_positions[:-1]:
             self.board[p] = 1
-        for p in self.p2_positions:
+        for p in self.p2_positions[:-1]:
             self.board[p] = -1
-        self.board[self.apple_position] = 2
+        self.board[self.p1_positions[-1]] = 2
+        self.board[self.p2_positions[-1]] = -2
 
+        self.board[self.apple_position] = 10
         # special case to display crashing snake - could be done separately
         if self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions:
             self.board[self.p1_positions[-1]] = 3
@@ -131,10 +150,7 @@ class TwoPlayerSnakeGame:
 
         current_position_x, current_position_y = positions[-1]
         move_x, move_y = direction_encoding[direction]
-        next_position = (
-            (current_position_x + move_x) % self.board_x,
-            (current_position_y + move_y) % self.board_y,
-        )
+        next_position = (current_position_x + move_x, current_position_y + move_y)
         # extend snake
         positions.append(next_position)
 
@@ -169,11 +185,11 @@ class TwoPlayerSnakeGame:
             for y in range(self.board_y):
                 if self.board[x, y] == 0:
                     output_str += " . "
-                elif self.board[x, y] == 2:
+                elif self.board[x, y] == 10:
                     output_str += " O "
-                elif self.board[x, y] == 1:
+                elif self.board[x, y] in [1, 2]:
                     output_str += " A "
-                elif self.board[x, y] == -1:
+                elif self.board[x, y] in [-1, -2]:
                     output_str += " B "
                 elif self.board[x, y] == 3:
                     output_str += " X "

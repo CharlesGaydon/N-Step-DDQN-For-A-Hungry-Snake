@@ -20,11 +20,10 @@ class TwoPlayerSnakeArena:
         self.nnet = nnet
         self.player_2 = player_2
         self.game = game
-        self.train_examples = []
+        self.train_examples_memory = []
         self.args = args
 
     def deep_q_learning(self):
-        self.train_examples = []
 
         for _ in tqdm(range(self.args.num_episodes), desc="Self Play and Learn"):
 
@@ -45,15 +44,16 @@ class TwoPlayerSnakeArena:
                 r1, r2 = self.game.step(a1=action_p1, a2=action_p2, display=False)
                 s1 = self.game.get_board(1)
                 s2 = self.game.get_board(2)
-
                 game_ended = 1 * (self.game.status > 0)
+
+                ### TODO: modify this to implement n-step q-learning
                 sarsa1 = (last_s1, action_p1, r1, game_ended, s1)
                 sarsa2 = (last_s2, action_p2, r2, game_ended, s2)
-                self.train_examples.extend([sarsa1, sarsa2])
+                self.train_examples_memory.extend([sarsa1, sarsa2])
 
-                if len(self.train_examples) > self.args.batch_size:
+                if len(self.train_examples_memory) > self.args.batch_size:
                     # start learning when sufficient examples
-                    self.nnet.optimize_network(self.train_examples, self.args)
+                    self.nnet.optimize_network(self.train_examples_memory, self.args)
 
                 # update last state
                 last_s1 = s1
@@ -66,6 +66,15 @@ class TwoPlayerSnakeArena:
                     break
             # update after each episode
             self.nnet.update_target_nnet()
+            # Print the loss
+            print(
+                f" Average loss: {np.mean(self.nnet.loss_historic)} (N={len(self.nnet.loss_historic)})"
+            )
+
+            if len(self.train_examples_memory) > self.args.max_memory:
+                self.train_examples_memory = self.train_examples_memory[
+                    -self.args.max_memory :
+                ]
 
     def compare_two_models(self, display=False):
 

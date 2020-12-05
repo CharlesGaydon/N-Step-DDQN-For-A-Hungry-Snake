@@ -11,13 +11,13 @@ class Coach:
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
         self.args = args
         # history of examples from args.numItersForTrainExamplesHistory latest iterations
-        self.train_examples_history = []
 
     def learn(self):
 
         arena = TwoPlayerSnakeArena(self.nnet, self.pnet, self.game, self.args)
 
         for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
+
             arena.deep_q_learning()
 
             # compare to the previous one

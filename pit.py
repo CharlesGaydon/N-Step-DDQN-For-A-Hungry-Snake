@@ -26,9 +26,9 @@ def main():
 
     g = TwoPlayerSnakeGame(board_x=10, board_y=10)
 
-    p1 = nn(g)
-    p1.load_checkpoint(folder="./NNets/trained", filename="best.hdf5")
-    p2 = RandomPlayer()
+    p1 = nn(g, load_best=True)
+    p2 = nn(g, load_best=True)
+
     arena = TwoPlayerSnakeArena(p1, p2, g, args)
     if local_args.mode == "game":
         arena.compare_two_models(display=True)
