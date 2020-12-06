@@ -1,10 +1,8 @@
 # from https://github.com/suragnair/alpha-zero-general/
 
-import time
 import numpy as np
 import sys
 import os
-from copy import deepcopy
 
 sys.path.append("..")
 from utils import dotdict
@@ -21,8 +19,8 @@ Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
 
 nnet_args = dotdict(
     {
-        "lr": 0.01,
-        "dropout": 0.25,
+        "lr": 0.05,
+        "dropout": 0.1,
         "cuda": False,
         "num_channels": 15,
         "mask_value": 424242,
@@ -31,7 +29,7 @@ nnet_args = dotdict(
 
 
 class NNetWrapper:
-    def __init__(self, game, load_best=False):
+    def __init__(self, game, load_folder_file=False):
         self.board_x, self.board_y = game.get_board_dimensions()
         # models
         self.nnet = snet(game, nnet_args)
@@ -39,8 +37,10 @@ class NNetWrapper:
         self.update_target_nnet()
         self.optimization_step_taken = 0
         self.loss_historic = []
-        if load_best:
-            self.load_checkpoint(folder="./NNets/trained", filename="best.hdf5")
+        if load_folder_file:
+            self.load_checkpoint(
+                folder=load_folder_file[0], filename=load_folder_file[1]
+            )
 
     def optimize_network(self, experiences, args):
         """
@@ -86,7 +86,7 @@ class NNetWrapper:
         """
 
         # preparing input
-        board = game.get_board(perspective)
+        board = game.get_board(perspective=perspective)
         board = board[np.newaxis, :, :]
 
         # run
@@ -104,29 +104,42 @@ class NNetWrapper:
 
         return v_pred[0]
 
-    def epsilon_greedy_policy(self, game, args, perspective=None):
+    def epsilon_greedy_policy(
+        self, game, args, perspective=None, forbidden_direction=False
+    ):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
         """
         # todo: add decaying epsilon
         if np.random.random() < args.epsilon:
-            return np.random.choice(4)
+            while True:
+                a = np.random.choice(4)
+                if forbidden_direction is None:
+                    return a
+                else:
+                    if a != forbidden_direction:
+                        return a
         else:
-            return self.greedy_policy(game, args, perspective=perspective)
+            return self.greedy_policy(
+                game,
+                args,
+                perspective=perspective,
+                forbidden_direction=forbidden_direction,
+            )
 
-    def greedy_policy(self, game, args, perspective=None):
+    def greedy_policy(self, game, args, perspective=None, forbidden_direction=None):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
         """
 
         q = self.predict_action_values_from_game(game, perspective=perspective)
-        q = q
-        q = np.exp(q / args.temperature)
-        q = q / q.sum()
-        # select optimal action
-        a = np.random.choice(range(4), p=q)
+
+        # never take the direction that is not possible
+        if forbidden_direction is not None:
+            q[forbidden_direction] = q.min()
+        a = np.argmax(q)
 
         return a
 

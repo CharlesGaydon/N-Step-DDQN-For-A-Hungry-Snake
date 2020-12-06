@@ -8,12 +8,15 @@ direction_encoding = {
     2: (1, 0),  # "bottom"
     3: (0, -1),  # "left"
 }
+APPLE_REWARD = 1
+CRASH_REWARD = -10
+STEP_REWARD = -0.025
 
 
 class TwoPlayerSnakeGame:
     def __init__(self, board_x=20, board_y=30):
-        self.board_x = board_x
-        self.board_y = board_y
+        self.board_x = board_x + 2  # borders
+        self.board_y = board_y + 2  # borders
         self.action_size = 4
         self.board = None  # shape will be (n, m)
         self.status = None
@@ -30,11 +33,16 @@ class TwoPlayerSnakeGame:
         self.p1_ate_apple = False
         # set player 2 initial position
         self.p2_positions = [
-            (4 * self.board_x // 5, 4 * self.board_y // 5),
-            (4 * self.board_x // 5, 4 * self.board_y // 5 - 1),
+            (4 * self.board_x // 5 - 1, 4 * self.board_y // 5 - 1),
+            (4 * self.board_x // 5 - 1, 4 * self.board_y // 5 - 2),
         ]
         self.p2_direction = 3
         self.p2_ate_apple = False
+
+        # randomly swap beginning
+        if np.random.randint(2):
+            self.p1_direction, self.p2_direction = self.p2_direction, self.p1_direction
+            self.p1_positions, self.p2_positions = self.p2_positions, self.p1_positions
 
         # init the state from its precursors
         self.set_apple_position()
@@ -88,7 +96,7 @@ class TwoPlayerSnakeGame:
                 print("A:", self.p1_positions, self.p1_direction)
                 print("B", self.p2_positions, self.p2_direction)
                 print(f"Final game status : {self.status}")
-            return (-35 * p1_crashed, -35 * p2_crashed)
+            return (CRASH_REWARD * p1_crashed, CRASH_REWARD * p2_crashed)
 
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
@@ -108,17 +116,28 @@ class TwoPlayerSnakeGame:
         self.status = 0
 
         # return a reward if an apple is eaten
-        return -0.25 + self.p1_ate_apple * 5, -0.25 + self.p2_ate_apple * 5
+        return (
+            STEP_REWARD + self.p1_ate_apple * APPLE_REWARD,
+            STEP_REWARD + self.p2_ate_apple * APPLE_REWARD,
+        )
 
     def is_out_of_board(self, position):
-        if position[0] < 0 or self.board_x <= position[0]:
+        if position[0] < 1 or self.board_x - 1 <= position[0]:
             return True
-        if position[1] < 0 or self.board_y <= position[1]:
+        if position[1] < 1 or self.board_y - 1 <= position[1]:
             return True
         return False
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))
+
+        # borders
+        self.board[0, :] = 3
+        self.board[-1, :] = 3
+        self.board[:, 0] = 3
+        self.board[:, -1] = 3
+
+        # snakes body and head
         for p in self.p1_positions[:-1]:
             self.board[p] = 1
         for p in self.p2_positions[:-1]:
@@ -126,8 +145,10 @@ class TwoPlayerSnakeGame:
         self.board[self.p1_positions[-1]] = 2
         self.board[self.p2_positions[-1]] = -2
 
+        # apple
         self.board[self.apple_position] = 10
-        # special case to display crashing snake - could be done separately
+
+        # special case to display crashing snakes
         if self.p1_positions[-1] in self.p1_positions[:-1] + self.p2_positions:
             self.board[self.p1_positions[-1]] = 3
         if self.p2_positions[-1] in self.p1_positions + self.p2_positions[:-1]:
@@ -136,11 +157,10 @@ class TwoPlayerSnakeGame:
         return self.board
 
     def set_apple_position(self):
-        # TODO: replace with a random selection among the complementary set of the positions
         while True:
             self.apple_position = (
-                np.random.randint(self.board_x),
-                np.random.randint(self.board_y),
+                np.random.randint(1, self.board_x - 1),
+                np.random.randint(1, self.board_y - 1),
             )
             if (self.apple_position not in self.p1_positions) and (
                 self.apple_position not in self.p2_positions
@@ -161,10 +181,10 @@ class TwoPlayerSnakeGame:
             del positions[0]
         return positions
 
-    def get_board(self, player_id):
-        if player_id == 1:
+    def get_board(self, perspective=None):
+        if perspective == 1:
             return self.board.copy()
-        elif player_id == 2:
+        elif perspective == 2:
             # reverse the board encoding to get perspective of player 2
             reverse_board = self.board.copy()
             reverse_board[
@@ -176,7 +196,7 @@ class TwoPlayerSnakeGame:
             ]
             return reverse_board
         else:
-            raise KeyError(f"Unknown player_id: {player_id}")
+            raise KeyError(f"Unknown player_id: {perspective}")
 
     def get_board_dimensions(self):
         return self.board_x, self.board_y

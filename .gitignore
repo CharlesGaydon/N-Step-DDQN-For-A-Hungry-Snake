@@ -1,4 +1,5 @@
-NNets/trained/
+NNets/TwoPlayer/trained/
+NNEts/OnePlayer/trained
 .idea/
 test.py
 
