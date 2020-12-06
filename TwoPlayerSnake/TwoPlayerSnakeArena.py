@@ -35,13 +35,22 @@ class TwoPlayerSnakeArena:
             while not self.game.status:
                 # select next action for both player
                 action_p1 = self.nnet.epsilon_greedy_policy(
-                    self.game, self.args, perspective=1
+                    self.game,
+                    self.args,
+                    perspective=1,
+                    forbidden_direction=self.game.p1_direction,
                 )
                 action_p2 = self.player_2.epsilon_greedy_policy(
-                    self.game, self.args, perspective=2
+                    self.game,
+                    self.args,
+                    perspective=2,
+                    forbidden_direction=self.game.p2_direction,
                 )
                 # execute and get reward for both snakes
                 r1, r2 = self.game.step(a1=action_p1, a2=action_p2, display=False)
+                # update to get actual action in case choice was not accepted
+                action_p1 = self.game.p1_direction
+                action_p2 = self.game.p2_direction
                 s1 = self.game.get_board(1)
                 s2 = self.game.get_board(2)
                 game_ended = 1 * (self.game.status > 0)
@@ -50,6 +59,9 @@ class TwoPlayerSnakeArena:
 
                 sarsa1 = (last_s1, action_p1, r1, game_ended, s1)
                 sarsa2 = (last_s2, action_p2, r2, game_ended, s2)
+                # if r1>0 or r2>0:
+                #     print(sarsa1)
+                #     print(sarsa2)
                 self.train_examples_memory.extend([sarsa1, sarsa2])
 
                 if len(self.train_examples_memory) > self.args.batch_size:

@@ -76,9 +76,7 @@ class SnakeNNet:
                 BatchNormalization(axis=1)(Dense(args.num_channels // 2)(s_fc1))
             )
         )  # batch_size x xx
-        self.q_a = Dense(self.action_size, activation="tanh", name="q_a")(
-            s_fc2
-        )  # batch_size x 1
+        self.q_a = Dense(self.action_size, name="q_a")(s_fc2)  # batch_size x 1
 
         self.model = Model(inputs=self.input_boards, outputs=self.q_a)
         self.model.compile(loss=[self.masked_loss_function], optimizer=Adam(args.lr))
