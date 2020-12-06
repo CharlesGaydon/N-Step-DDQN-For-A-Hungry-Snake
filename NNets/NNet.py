@@ -19,7 +19,7 @@ Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
 
 nnet_args = dotdict(
     {
-        "learning_rate": 0.05,
+        "learning_rate": 0.001,
         "dropout": 0.1,
         "cuda": False,
         "num_channels": 15,
@@ -42,6 +42,8 @@ class NNetWrapper:
                 folder=load_folder_file[0], filename=load_folder_file[1]
             )
 
+        self.fit_is_called_counter = 0
+
     def optimize_network(self, experiences, args):
         """
         examples: list of examples, each example is of form (board, pi, v)
@@ -55,15 +57,18 @@ class NNetWrapper:
         X_batch = []
         Y_batch = []
 
-        for last_s, last_a, r, terminal, s in sample:
+        for last_s, last_a, expected_return, terminal, s in sample:
             q_values_target = np.array([mask_value, mask_value, mask_value, mask_value])
             if terminal:
-                target_q_s_a = r
+                target_q_s_a = expected_return
             else:
                 max_q_value = np.max(
                     self.predict_action_values_from_state(s, use_target_nnet=True)
                 )
-                target_q_s_a = r + args.discount_factor * max_q_value
+                target_q_s_a = (
+                    expected_return
+                    + (args.discount_factor ** args.n_step_learning) * max_q_value
+                )
             q_values_target[last_a] = target_q_s_a
 
             X_batch.append(last_s)
@@ -74,9 +79,10 @@ class NNetWrapper:
         history = self.nnet.model.fit(
             X_batch, Y_batch, batch_size=args.batch_size, epochs=1, verbose=False
         )
+        self.fit_is_called_counter += 1
         loss = history.history["loss"][0]
         self.loss_historic.append(loss)
-        if len(self.loss_historic) > 100:
+        if len(self.loss_historic) > 20:
             self.loss_historic.pop(0)  # remove the first one
 
     def predict_action_values_from_game(self, game, perspective=None):
@@ -122,13 +128,10 @@ class NNetWrapper:
                         return a
         else:
             return self.greedy_policy(
-                game,
-                args,
-                perspective=perspective,
-                forbidden_direction=forbidden_direction,
+                game, perspective=perspective, forbidden_direction=forbidden_direction
             )
 
-    def greedy_policy(self, game, args, perspective=None, forbidden_direction=None):
+    def greedy_policy(self, game, perspective=None, forbidden_direction=None):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
@@ -159,7 +162,7 @@ class NNetWrapper:
             )
             os.makedirs(folder)
         else:
-            print("Checkpoint Directory exists! ")
+            print(f"Saving to {folder}/{filename}")
         self.nnet.model.save_weights(filepath)
 
     def load_checkpoint(self, folder="./NNets/trained", filename="checkpoint.hdf5"):

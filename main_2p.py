@@ -12,6 +12,7 @@ args = dotdict(
         "max_memory": 1000,
         "updateThreshold": 0.5,
         "discount_factor": 0.90,
+        "n_step_learning": 1,
         "batch_size": 32,
         "epsilon": 0.05,
         "temperature": 0.05,

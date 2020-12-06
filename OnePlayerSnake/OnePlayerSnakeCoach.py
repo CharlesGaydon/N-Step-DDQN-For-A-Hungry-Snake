@@ -16,10 +16,6 @@ class Coach:
         for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
 
             arena.deep_q_learning()
-
-            # compare to the previous one
-            arena.play_n_games(self.args.arenaCompare, verbose=True)
-            print("Save the model.")
             self.nnet.save_checkpoint(
                 folder=self.args.load_folder_file[0],
                 filename=f"checkpoint_{iter_}.hdf5",
@@ -28,3 +24,5 @@ class Coach:
                 folder=self.args.load_folder_file[0],
                 filename=self.args.load_folder_file[1],
             )
+            # compare to the previous one
+            arena.play_n_games(self.args.arenaCompare, verbose=True)

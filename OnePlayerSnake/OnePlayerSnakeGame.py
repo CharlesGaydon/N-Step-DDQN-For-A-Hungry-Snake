@@ -8,19 +8,22 @@ direction_encoding = {
     2: (1, 0),  # "bottom"
     3: (0, -1),  # "left"
 }
-APPLE_REWARD = 1
-CRASH_REWARD = -10
-STEP_REWARD = -0.025
+APPLE_REWARD = 10
+CRASH_REWARD = -20
+STEP_REWARD = 0.5
 
 
 class OnePlayerSnakeGame:
-    def __init__(self, board_x=20, board_y=30):
+    def __init__(self, board_x=8, board_y=8):
         self.board_x = board_x + 2  # borders
         self.board_y = board_y + 2  # borders
         self.action_size = 4
         self.board = None  # shape will be (n, m)
-        self.status = None
+        self.status = 0
+        self.p1_ate_apple = False
         self.episode_duration = 0
+        self.total_reward = 0
+
         self.init_game()
 
     def init_game(self):
@@ -30,10 +33,11 @@ class OnePlayerSnakeGame:
         self.total_reward = 0
 
         # set player 1 initial position and direction
-        self.p1_direction = 1
+        self.p1_direction = np.random.randint(4)
+        dx, dy = direction_encoding[self.p1_direction]
         self.p1_positions = [
-            (self.board_x // 5, self.board_y // 5),
-            (self.board_x // 5, self.board_y // 5 + 1),
+            (self.board_x // 2, self.board_y // 2),
+            (self.board_x // 2 + dx, self.board_y // 2 + dy),
         ]
         self.p1_ate_apple = False
 
@@ -71,15 +75,23 @@ class OnePlayerSnakeGame:
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
             self.p1_ate_apple = True
-            self.total_reward += APPLE_REWARD
             self.set_apple_position()
         else:
             self.p1_ate_apple = False
-        # status is 0 and  the game can continue:
+
+        # status is 0 and the game can continue:
         self.set_board_from_positions()
         self.status = 0
 
-        return -STEP_REWARD + self.p1_ate_apple * APPLE_REWARD
+        reward = self.p1_ate_apple * APPLE_REWARD
+
+        # add reward if getting closer to the apple on x axis or y axis
+        if not self.p1_ate_apple:
+            moved_along_x, moved_along_y = self.moved_toward_apple()
+            reward += (moved_along_x + moved_along_y) * STEP_REWARD
+
+        self.total_reward += reward
+        return reward
 
     def is_out_of_board(self, position):
         if position[0] < 1 or self.board_x - 1 <= position[0]:
@@ -87,6 +99,19 @@ class OnePlayerSnakeGame:
         if position[1] < 1 or self.board_y - 1 <= position[1]:
             return True
         return False
+
+    def moved_toward_apple(self):
+        dir_dx, dir_dy = direction_encoding[self.p1_direction]
+        prev_x, prev_y = self.p1_positions[-2]
+        apple_dx = (self.apple_position[0] - prev_x) > 0
+        apple_dy = (self.apple_position[1] - prev_y) > 0
+        moved_along_x = False
+        moved_along_y = False
+        if apple_dx == dir_dx:
+            moved_along_x = True
+        if apple_dy == dir_dy:
+            moved_along_y = True
+        return moved_along_x, moved_along_y
 
     def set_board_from_positions(self):
         self.board = np.zeros((self.board_x, self.board_y))
@@ -121,8 +146,8 @@ class OnePlayerSnakeGame:
         # Note: input is modified by this, which is expected for now
 
         current_position_x, current_position_y = positions[-1]
-        move_x, move_y = direction_encoding[direction]
-        next_position = (current_position_x + move_x, current_position_y + move_y)
+        dx, dy = direction_encoding[direction]
+        next_position = (current_position_x + dx, current_position_y + dy)
         # extend snake
         positions.append(next_position)
 
@@ -132,7 +157,10 @@ class OnePlayerSnakeGame:
         return positions
 
     def get_board(self, perspective=None):
-        return self.board.copy()
+        scaled_board = self.board.copy()
+        scaled_board = scaled_board - scaled_board.min()
+        scaled_board = scaled_board / scaled_board.max()
+        return scaled_board
 
     def get_board_dimensions(self):
         return self.board_x, self.board_y
