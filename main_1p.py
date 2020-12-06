@@ -22,7 +22,7 @@ args = dotdict(
 
 
 def main():
-    g = OnePlayerSnakeGame(board_x=10, board_y=20)
+    g = OnePlayerSnakeGame(board_x=20, board_y=20)
     nnet = NNetWrapper(g)
     c = Coach(g, nnet, args)
     c.learn()

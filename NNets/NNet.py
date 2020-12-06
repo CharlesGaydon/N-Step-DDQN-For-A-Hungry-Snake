@@ -19,7 +19,7 @@ Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
 
 nnet_args = dotdict(
     {
-        "lr": 0.05,
+        "learning_rate": 0.05,
         "dropout": 0.1,
         "cuda": False,
         "num_channels": 15,
@@ -157,7 +157,7 @@ class NNetWrapper:
                     folder
                 )
             )
-            os.mkdir(folder)
+            os.makedirs(folder)
         else:
             print("Checkpoint Directory exists! ")
         self.nnet.model.save_weights(filepath)
