@@ -6,22 +6,46 @@ from NNets.NNet import NNetWrapper
 
 from utils import dotdict
 
+# args = dotdict(
+#     {
+#         "num_episodes": 10000,  #  number of episodes before stopping learning
+#         "probability_to_keep_low_reward_experiences": 0.05,
+#         "frequency_to_control_interest_of_episode_every": 75,
+#         "min_reward_per_steps_to_consider_episode": 1.0 / 50,
+#         "max_memory": 20000,  # number of experiences kept in memory
+#         "num_experience_to_start_learning": 100,
+#         "discount_factor": 0.30,  # higher = long term interest
+#         "n_step_learning": 3,  # n for n-step sarsa
+#         "num_replay": 5,  # after each episode step, how many time do we train the model
+#         "batch_size": 64,
+#         "epsilon": 0.60,
+#         "min_epsilon": 0.1,
+#         "temperature": 0.1,  # lower for greedier decision and unstucking the snake
+#         "epsilon_decay_rate": 0.99,
+#         "arenaCompare": 20,  # Number of games to play during arena play to determine if new net will be accepted.
+#         "n_fit_update_target_nnet": 1000,
+#         "printing_loss_frequency": 50,
+#         "save_every_n_episodes": 50,  # save models with this frequency
+#         "load_folder_file": ("./NNets/OnePlayer/trained/", "best.hdf5"),
+#     }
+# )
+# experimental args
 args = dotdict(
     {
-        "num_episodes": 10000,  #  number of episodes before stopping learning
+        "num_episodes": 10 ** 6,  #  number of episodes before stopping learning
         "probability_to_keep_low_reward_experiences": 0.05,
         "frequency_to_control_interest_of_episode_every": 75,
         "min_reward_per_steps_to_consider_episode": 1.0 / 50,
         "max_memory": 20000,  # number of experiences kept in memory
         "num_experience_to_start_learning": 100,
-        "discount_factor": 0.30,  # higher = long term interest
+        "discount_factor": 0.90,  # higher = long term interest
         "n_step_learning": 3,  # n for n-step sarsa
         "num_replay": 5,  # after each episode step, how many time do we train the model
         "batch_size": 64,
-        "epsilon": 0.60,
-        "min_epsilon": 0.1,
+        "epsilon": 1,
+        "min_epsilon": 0.001,
         "temperature": 0.1,  # lower for greedier decision and unstucking the snake
-        "epsilon_decay_rate": 0.99,
+        "epsilon_decay_rate": 1 - (10 ** -5),
         "arenaCompare": 20,  # Number of games to play during arena play to determine if new net will be accepted.
         "n_fit_update_target_nnet": 1000,
         "printing_loss_frequency": 50,
