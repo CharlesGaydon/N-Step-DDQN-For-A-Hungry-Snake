@@ -10,7 +10,7 @@ direction_encoding = {
 }
 APPLE_REWARD = 10
 CRASH_REWARD = -20
-STEP_REWARD = 0.5
+STEP_TOWARD_APPLE_REWARD = 0.5
 
 
 class OnePlayerSnakeGame:
@@ -45,6 +45,8 @@ class OnePlayerSnakeGame:
         self.set_apple_position()
         self.set_board_from_positions()
 
+        self.current_experience = []
+
     def step(self, a1, display=False):
         self.episode_duration += 1
 
@@ -74,6 +76,7 @@ class OnePlayerSnakeGame:
 
         # test if the apple was caught and update in consequence
         if self.p1_positions[-1] == self.apple_position:
+            self.total_reward += 1
             self.p1_ate_apple = True
             self.set_apple_position()
         else:
@@ -88,9 +91,10 @@ class OnePlayerSnakeGame:
         # add reward if getting closer to the apple on x axis or y axis
         if not self.p1_ate_apple:
             moved_along_x, moved_along_y = self.moved_toward_apple()
-            reward += (moved_along_x + moved_along_y) * STEP_REWARD
+            reward += (moved_along_x + moved_along_y) * STEP_TOWARD_APPLE_REWARD
+            if not any([moved_along_x, moved_along_y]):
+                reward -= STEP_TOWARD_APPLE_REWARD
 
-        self.total_reward += reward
         return reward
 
     def is_out_of_board(self, position):
@@ -155,6 +159,10 @@ class OnePlayerSnakeGame:
         if not ate_apple:
             del positions[0]
         return positions
+
+    def add_to_current_experience(self, experience):
+        # experience: sarsa like tuple
+        self.current_experience.append(experience)
 
     def get_board(self, perspective=None):
         scaled_board = self.board.copy()

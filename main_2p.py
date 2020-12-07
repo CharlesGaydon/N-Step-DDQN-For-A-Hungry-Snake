@@ -6,8 +6,7 @@ from utils import dotdict
 
 args = dotdict(
     {
-        "numIters": 50,
-        "num_episodes": 21,  # Number of complete self-play games to simulate during a new iteration.
+        "num_episodes": 20000,  # Number of complete self-play games to simulate
         "max_episode_length": 150,
         "max_memory": 1000,
         "updateThreshold": 0.5,

@@ -15,7 +15,7 @@ class Coach:
 
         arena = TwoPlayerSnakeArena(self.nnet, self.pnet, self.game, self.args)
 
-        for iter_ in tqdm(range(self.args.numIters), desc="Iterations"):
+        for iter_ in tqdm(range(self.args.num_episodes), desc="Iterations"):
 
             arena.deep_q_learning()
 

@@ -8,21 +8,23 @@ from utils import dotdict
 
 args = dotdict(
     {
-        "numIters": 200,
-        "num_episodes": 20,  # Number of complete self-play games to simulate during a new iteration.
+        "num_episodes": 10000,  #  number of episodes before stopping learning
+        "min_reward_to_consider_episode": 1,
+        "probability_to_keep_low_reward_experiences": 0.05,
         "max_episode_length": 150,
-        "max_memory": 20000,  # number of exeperiences kept in memory
+        "max_memory": 20000,  # number of experiences kept in memory
         "n_fit_update_target_nnet": 250,
         "printing_loss_frequency": 50,
-        "discount_factor": 0.90,  # higher = long term interest
-        "n_step_learning": 7,  # n for n-step sarsa
-        "num_replay": 5,  # after each game step, how many time do we train the model
+        "discount_factor": 0.50,  # higher = long term interest
+        "n_step_learning": 5,  # n for n-step sarsa
+        "num_replay": 5,  # after each episode step, how many time do we train the model
         "batch_size": 64,
         "num_experience_to_start_learning": 100,
         "epsilon": 0.50,
         "min_epsilon": 0.1,
         "epsilon_decay_rate": 0.995,
-        "arenaCompare": 7,  # Number of games to play during arena play to determine if new net will be accepted.
+        "arenaCompare": 20,  # Number of games to play during arena play to determine if new net will be accepted.
+        "save_every_n_episodes": 50,  # save models with this frequency
         "load_folder_file": ("./NNets/OnePlayer/trained/", "best.hdf5"),
     }
 )
