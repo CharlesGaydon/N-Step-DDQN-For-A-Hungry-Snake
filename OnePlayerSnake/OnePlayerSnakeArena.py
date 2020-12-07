@@ -210,11 +210,14 @@ class OnePlayerSnakeArena:
                 self.play_one_game(display=False)
                 stats.append(self.game.get_game_stats())
             if verbose:
-                m1, m2 = (
+                m1, m2, high = (
                     np.median([s[0] for s in stats]).round(2),
                     np.median([s[1] for s in stats]).round(2),
+                    np.max([s[1] for s in stats]).round(2),
                 )
+
                 # print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
-                print(f"Medianepisode duration & median total reward: {m1} - {m2}")
+                print(f"Median episode duration & median total reward: {m1} - {m2}")
+                print(f"High score: {high}")
 
         return stats

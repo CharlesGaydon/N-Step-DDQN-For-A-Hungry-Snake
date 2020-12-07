@@ -31,7 +31,7 @@ def main():
     if local_args.mode == "game":
         arena.play_one_game(display=True)
     else:
-        arena.play_n_games(20, verbose=True)
+        arena.play_n_games(30, verbose=True)
 
 
 if __name__ == "__main__":
