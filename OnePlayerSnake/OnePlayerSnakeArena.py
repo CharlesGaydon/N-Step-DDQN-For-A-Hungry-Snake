@@ -8,14 +8,6 @@ from tqdm import tqdm
 
 
 class OnePlayerSnakeArena:
-    """
-    Class that run an episode of the game and will build
-    the list train_examples : a list of examples of the form (canonicalBoard, currPlayer, pi,v)
-                            pi is the MCTS informed policy vector, v is +1 if
-                            the player eventually won the game, else -1.
-    Player are object with predict method that takes board as argument and outputs a policy.
-    """
-
     def __init__(self, nnet, game, args):
         self.nnet = nnet
         self.game = game
@@ -33,7 +25,7 @@ class OnePlayerSnakeArena:
         A = [None] * (n + 1)
 
         S[0] = self.game.get_board()
-        A[0] = self.nnet.epsilon_greedy_policy(
+        A[0] = self.nnet.epsilon_hot_softmax_policy(
             self.game,
             perspective=None,
             args=self.args,
@@ -51,7 +43,7 @@ class OnePlayerSnakeArena:
                 if game_ended:
                     T = t + 1
                 else:
-                    A[(t + 1) % (n + 1)] = self.nnet.epsilon_greedy_policy(
+                    A[(t + 1) % (n + 1)] = self.nnet.epsilon_hot_softmax_policy(
                         self.game,
                         perspective=None,
                         args=self.args,
@@ -90,25 +82,38 @@ class OnePlayerSnakeArena:
                 # We updated all experiences, and training for this episode is over
                 break
 
-            # Stop episode if it is too long
-            if self.game.episode_duration > self.args.max_episode_length:
-                print(
-                    f"Episode lasted more that max_episode_length: "
-                    f"{self.game.episode_duration}/{self.args.max_episode_length}"
-                )
-                break
+            # Stop episode if it is too long without reward
+            if (
+                self.game.episode_duration
+                % self.args.frequency_to_control_interest_of_episode_every
+                == 0
+            ):
+                if (
+                    self.game.get_reward_per_episode_steps()
+                    < self.args.min_reward_per_steps_to_consider_episode
+                ):
+                    print(
+                        f"Episode had low reward: {self.game.total_reward} for {self.game.episode_duration} steps"
+                    )
+                    if t < T:
+                        T = t + n + 1
+                        t = T  # add the last step to learning
 
             # next time index
             t = t + 1
 
         # Decide if the experience was interested enough to be used
         add_experience_to_memory = True
-        if self.game.total_reward < self.args.min_reward_to_consider_episode:
+        if (
+            self.game.get_reward_per_episode_steps()
+            < self.args.min_reward_per_steps_to_consider_episode
+        ):
             if not (
                 np.random.random()
                 < self.args.probability_to_keep_low_reward_experiences
             ):
                 add_experience_to_memory = False
+
         # TODO LOOG
         if add_experience_to_memory:
             print(f"Using experience with reward {self.game.total_reward}")
@@ -131,6 +136,7 @@ class OnePlayerSnakeArena:
                         f"Fit was called {self.nnet.fit_is_called_counter} times since training started."
                     )
 
+                # ¨Print mean loss and also print out the epsilon value
                 if (
                     self.nnet.fit_is_called_counter % self.args.printing_loss_frequency
                     == 0
@@ -138,6 +144,7 @@ class OnePlayerSnakeArena:
                     print(
                         f" Mean loss = {np.mean(self.nnet.loss_historic).round(3)} (N={len(self.nnet.loss_historic)})"
                     )
+                    print(f" Epsilon value = {self.args.epsilon}")
 
                 # Update the target NNet every n_fit_update_target_nnet steps
                 if (
@@ -167,18 +174,32 @@ class OnePlayerSnakeArena:
                 print(
                     self.nnet.predict_action_values_from_game(self.game, perspective=1)
                 )
-            action_p1 = self.nnet.greedy_policy(self.game, perspective=1)
+            action_p1 = self.nnet.hot_softmax_policy(
+                self.game,
+                self.args,
+                perspective=1,
+                forbidden_direction=self.game.p1_direction,
+            )
 
             self.game.step(a1=action_p1, display=display)
 
             if display:
                 self.game.display()
                 time.sleep(0.15)
-            if self.game.episode_duration > self.args.max_episode_length:
-                print(
-                    f" Evaluation episode lasted more that max_episode_length: "
-                    f"{self.game.episode_duration}/{self.args.max_episode_length}"
-                )
+            # if check step is reached
+            if (
+                self.game.episode_duration
+                % self.args.frequency_to_control_interest_of_episode_every
+                == 0
+            ):
+                # if not enough reward
+                if (
+                    self.game.get_reward_per_episode_steps()
+                    < self.args.min_reward_per_steps_to_consider_episode
+                ):
+                    print(
+                        f"Episode had low reward: {self.game.total_reward} for {self.game.episode_duration} steps"
+                    )
                 break
 
     def play_n_games(self, nb_games, verbose=True):
@@ -190,10 +211,10 @@ class OnePlayerSnakeArena:
                 stats.append(self.game.get_game_stats())
             if verbose:
                 m1, m2 = (
-                    np.mean([s[0] for s in stats]).round(2),
-                    np.mean([s[1] for s in stats]).round(2),
+                    np.median([s[0] for s in stats]).round(2),
+                    np.median([s[1] for s in stats]).round(2),
                 )
                 # print("\n".join([f"{s[0]} vs {s[1]}" for s in stats]))
-                print(f"Means of episode duration & total reward: {m1} - {m2}")
+                print(f"Medianepisode duration & median total reward: {m1} - {m2}")
 
         return stats

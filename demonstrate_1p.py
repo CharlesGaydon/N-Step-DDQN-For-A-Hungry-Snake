@@ -23,7 +23,7 @@ def main():
     parser = get_parser()
     local_args = parser.parse_args()
 
-    g = OnePlayerSnakeGame(board_x=8, board_y=8)
+    g = OnePlayerSnakeGame(board_x=5, board_y=5)
 
     p1 = nn(g, load_folder_file=args.load_folder_file)
 

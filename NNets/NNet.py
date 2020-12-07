@@ -110,7 +110,7 @@ class NNetWrapper:
 
         return v_pred[0]
 
-    def epsilon_greedy_policy(
+    def epsilon_hot_softmax_policy(
         self, game, args, perspective=None, forbidden_direction=False
     ):
         """
@@ -127,22 +127,29 @@ class NNetWrapper:
                     if a != forbidden_direction:
                         return a
         else:
-            return self.greedy_policy(
-                game, perspective=perspective, forbidden_direction=forbidden_direction
+            return self.hot_softmax_policy(
+                game,
+                args,
+                perspective=perspective,
+                forbidden_direction=forbidden_direction,
             )
 
-    def greedy_policy(self, game, perspective=None, forbidden_direction=None):
+    def hot_softmax_policy(
+        self, game, args, perspective=None, forbidden_direction=None
+    ):
         """
         game: snake game
         perspective : 1 or 2 depending on the considered player
         """
 
-        q = self.predict_action_values_from_game(game, perspective=perspective)
-
-        # never take the direction that is not possible
+        A = self.predict_action_values_from_game(game, perspective=perspective)
+        A = np.exp(A / args.temperature)
         if forbidden_direction is not None:
-            q[forbidden_direction] = q.min()
-        a = np.argmax(q)
+            A[forbidden_direction] = 0
+        A = A / np.sum(A)
+
+        # print(A.round(2))
+        a = np.random.choice(4, p=A)
 
         return a
 

@@ -34,13 +34,13 @@ class TwoPlayerSnakeArena:
 
             while not self.game.status:
                 # select next action for both player
-                action_p1 = self.nnet.epsilon_greedy_policy(
+                action_p1 = self.nnet.epsilon_hot_softmax_policy(
                     self.game,
                     self.args,
                     perspective=1,
                     forbidden_direction=self.game.p1_direction,
                 )
-                action_p2 = self.player_2.epsilon_greedy_policy(
+                action_p2 = self.player_2.epsilon_hot_softmax_policy(
                     self.game,
                     self.args,
                     perspective=2,
@@ -95,8 +95,12 @@ class TwoPlayerSnakeArena:
 
         while not self.game.status:
             # we predict directly using the NN
-            action_p1 = self.nnet.greedy_policy(self.game, self.args, perspective=1)
-            action_p2 = self.player_2.greedy_policy(self.game, self.args, perspective=2)
+            action_p1 = self.nnet.hot_softmax_policy(
+                self.game, self.args, perspective=1
+            )
+            action_p2 = self.player_2.hot_softmax_policy(
+                self.game, self.args, perspective=2
+            )
 
             self.game.step(a1=action_p1, a2=action_p2, display=display)
 

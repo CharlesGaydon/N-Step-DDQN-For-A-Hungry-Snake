@@ -64,7 +64,8 @@ class SnakeNNet:
         model.add(BatchNormalization(axis=-1))
 
         model.add(Flatten())
-        model.add(Dense(16, kernel_initializer=initializer))
+        model.add(Dense(self.action_size, kernel_initializer=initializer))
+        model.add(Dense(self.action_size, kernel_initializer=initializer))
         model.add(Dense(self.action_size, kernel_initializer=initializer))
         adam = Adam(lr=args.learning_rate, clipnorm=1.0)
         model.compile(loss=[self.masked_loss_function], optimizer=adam)
