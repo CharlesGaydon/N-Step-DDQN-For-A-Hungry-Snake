@@ -5,15 +5,15 @@ Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake 
 ---
 
 Table of content
-- [Preliminary note](#note)
-- [Game Setting Overview](#setting)
+- [Preliminary note - Scope](#note)
+- [Overview of Snake DDQN Game Setting](#setting)
 - [Results](#results)
-- [Good ideas and lessons for next time](#ideas)
+- [Good Ideas and Lessons For Next Time](#ideas)
 - [Credits](#credits)
 
 ---
 
-## Preliminary note
+## Preliminary Note - Scope
 <a name="note"/>
 
 This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
@@ -28,7 +28,7 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 
 ---
 
-## Game Setting Overview
+## Overview of Snake DDQN Game Setting 
 <a name="setting"/>
 
 - Small snake world (7x7), including borders on the sides
@@ -67,7 +67,7 @@ from Ray Heberer, although limited in potential.
 
 ---
 
-## Good ideas and lessons for next time
+## Good Ideas and Lessons For Next Time
 <a name="ideas"/>
 
 Reinforcement LearningL:
