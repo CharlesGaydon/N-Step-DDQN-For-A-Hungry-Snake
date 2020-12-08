@@ -7,7 +7,7 @@ Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake 
 Table of content
 - [Preliminary note](#note)
 - [Game Setting Overview](#setting)
-- Results](#results)
+- [Results](#results)
 - [Good ideas and lessons for next time](#ideas)
 - [Credits](#credits)
 
@@ -27,6 +27,7 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 --> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.**
 
 ---
+
 <a name="setting"/>
 ## Game Setting Overview
 - Small snake world (7x7), including borders on the sides
@@ -37,6 +38,7 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 - Parameters are in `main_1p.py`
 
 ---
+
 <a name="results"/>
 ## Results
 
@@ -62,6 +64,7 @@ Simpler solutions include using custom features as in this [article (2019)](http
 from Ray Heberer, although limited in potential.
 
 ---
+
 <a name="ideas"/>
 ## Good ideas and lessons for next time
 Reinforcement LearningL:
@@ -75,8 +78,10 @@ Code
 - Start by a simpler problem : 1-player before the harder 2-player snake game; cartpole before snake game.
 - Save model's weights frequently along learning, to be able to resume learning in another session.
 
-<a name="credit"/>
-## Credit
+---
+
+<a name="credits"/>
+## Credits
 - Sutton and Barto's [Reinformcent Learning: An Introduction](http://incompleteideas.net/book/RLbook2020.pdf)
 for pseudo-code of n-step SARSA logic.
 - The [article (2019)](https://towardsdatascience.com/why-going-from-implementing-q-learning-to-deep-q-learning-can-be-difficult-36e7ea1648af)
@@ -85,5 +90,4 @@ from Ray Heberer for ideas related to Double Deep Q-Network.
 from Hennie de Harderr for the idea of rewarding getting closer to the apple.
 - The team behind [alpha-zero-general](https://github.com/suragnair/alpha-zero-general/),
 which greatly inspired this repository structure and classes, at least at the beginning.
-
 
