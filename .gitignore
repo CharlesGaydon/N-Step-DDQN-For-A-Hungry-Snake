@@ -1,5 +1,5 @@
-NNets/TwoPlayer/trained/
-NNEts/OnePlayer/trained
+Trained_Models/TwoPlayer/trained/
+Trained_Models/OnePlayer/trained
 
 .idea/
 test.py

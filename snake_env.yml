@@ -15,4 +15,4 @@ dependencies:
   - jupyter
   - black
   - pre-commit
-  - virtualenv=20.0.33
+  - virtualenv=20.0.33  # For compatibility with conda env; venv is called when using black!

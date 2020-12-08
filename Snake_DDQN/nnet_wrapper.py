@@ -1,21 +1,9 @@
-# from https://github.com/suragnair/alpha-zero-general/
-
 import numpy as np
-import sys
 import os
 
-sys.path.append("..")
 from utils import dotdict
-from .SnakeNNet import SnakeNNet as snet
+from .nnet_architecture import NNetArchitecture as snet
 
-"""
-NeuralNet wrapper class for the TicTacToeNNet.
-
-Author: Evgeny Tyurin, github.com/evg-tyurin
-Date: Jan 5, 2018.
-
-Based on (copy-pasted from) the NNet by SourKream and Surag Nair.
-"""
 
 nnet_args = dotdict(
     {
@@ -159,7 +147,9 @@ class NNetWrapper:
     def update_target_nnet(self):
         self.target_nnet.model.set_weights(self.nnet.model.get_weights())
 
-    def save_checkpoint(self, folder="./NNets/checkpoint", filename="checkpoint.hdf5"):
+    def save_checkpoint(
+        self, folder="./Trained_Models/checkpoint", filename="checkpoint.hdf5"
+    ):
         filepath = os.path.join(folder, filename)
         if not os.path.exists(folder):
             print(
@@ -172,10 +162,12 @@ class NNetWrapper:
             print(f" Saving to {folder}/{filename}")
         self.nnet.model.save_weights(filepath)
 
-    def load_checkpoint(self, folder="./NNets/trained", filename="checkpoint.hdf5"):
+    def load_checkpoint(
+        self, folder="./Trained_Models/trained", filename="checkpoint.hdf5"
+    ):
         # https://github.com/pytorch/examples/blob/master/imagenet/main.py#L98
         filepath = os.path.join(folder, filename)
         print(filepath)
         if not os.path.exists(filepath):
-            raise ValueError(" No NNets in path '{}'".format(filepath))
+            raise ValueError(" No Trained_Models in path '{}'".format(filepath))
         self.nnet.model.load_weights(filepath)

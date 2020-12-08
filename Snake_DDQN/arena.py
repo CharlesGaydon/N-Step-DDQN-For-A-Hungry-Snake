@@ -1,13 +1,9 @@
 import time
-
 import numpy as np
 from tqdm import tqdm
 
-# Using experience replay and Target Network as mentionned here:
-# https://fr.slideshare.net/LeejinJeong/deep-sarsa-deep-qlearning-dqn-102870392
 
-
-class OnePlayerSnakeArena:
+class Arena:
     def __init__(self, nnet, game, args):
         self.nnet = nnet
         self.game = game

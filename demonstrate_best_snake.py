@@ -1,9 +1,7 @@
-import sys
-
-from OnePlayerSnake.OnePlayerSnakeGame import OnePlayerSnakeGame
-from OnePlayerSnake.OnePlayerSnakeArena import OnePlayerSnakeArena
-from NNets.NNet import NNetWrapper as nn
-from main_1p import args
+from Snake_DDQN.game import Game
+from Snake_DDQN.arena import Arena
+from Snake_DDQN.nnet_wrapper import NNetWrapper as nn
+from main import args
 import argparse
 
 
@@ -23,11 +21,11 @@ def main():
     parser = get_parser()
     local_args = parser.parse_args()
 
-    g = OnePlayerSnakeGame(board_x=5, board_y=5)
+    g = Game(board_x=5, board_y=5)
 
     p1 = nn(g, load_folder_file=args.load_folder_file)
 
-    arena = OnePlayerSnakeArena(p1, g, args)
+    arena = Arena(p1, g, args)
     if local_args.mode == "game":
         arena.play_one_game(display=True)
     else:

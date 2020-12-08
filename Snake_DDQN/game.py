@@ -1,5 +1,4 @@
 import sys
-
 import numpy as np
 
 direction_encoding = {
@@ -10,11 +9,12 @@ direction_encoding = {
 }
 APPLE_REWARD = 10
 CRASH_REWARD = -20
-# STEP_TOWARD_APPLE_REWARD = 0.5
-CLOSENESS_TO_APPLE_REWARD = 2  # 1 per 10x+10y distance
+CLOSENESS_TO_APPLE_REWARD = (
+    2  # times fraction of a pseudo-max possible distance to the apple
+)
 
 
-class OnePlayerSnakeGame:
+class Game:
     def __init__(self, board_x=8, board_y=8):
         self.board_x = board_x + 2  # borders
         self.board_y = board_y + 2  # borders
@@ -60,7 +60,7 @@ class OnePlayerSnakeGame:
             self.p1_positions, self.p1_direction, self.p1_ate_apple
         )
 
-        # test if snake went out of board
+        # test if snake crashed
         p1_crashed = self.is_out_of_board(self.p1_positions[-1])
         if p1_crashed:
             self.status = 1
@@ -83,7 +83,7 @@ class OnePlayerSnakeGame:
         else:
             self.p1_ate_apple = False
 
-        # status is 0 and the game can continue:
+        # the game can continue:
         self.set_board_from_positions()
         self.status = 0
 
@@ -91,39 +91,20 @@ class OnePlayerSnakeGame:
 
         # add reward if getting closer to the apple on x axis or y axis
         if not self.p1_ate_apple:
-            # moved_along_x, moved_along_y = self.moved_toward_apple()
-            # reward += (moved_along_x + moved_along_y) * STEP_TOWARD_APPLE_REWARD
-            # if not any([moved_along_x, moved_along_y]):
-            #     reward -= STEP_TOWARD_APPLE_REWARD
-
             reward += self.get_closeness_to_apple() * CLOSENESS_TO_APPLE_REWARD
-            # print(self.get_closeness_to_apple(), reward)
 
         return reward
 
     def is_out_of_board(self, position):
+        # returns True if snake head touches the border of the board
         if position[0] < 1 or self.board_x - 1 <= position[0]:
             return True
         if position[1] < 1 or self.board_y - 1 <= position[1]:
             return True
         return False
 
-    # def moved_toward_apple(self):
-    #     dir_dx, dir_dy = direction_encoding[self.p1_direction]
-    #     prev_x, prev_y = self.p1_positions[-2]
-    #     apple_dx = (self.apple_position[0] - prev_x) > 0
-    #     apple_dx_direction = 1 if apple_dx else -1
-    #     apple_dy = (self.apple_position[1] - prev_y) > 0
-    #     apple_dy_direction = 1 if apple_dy else -1
-    #     moved_along_x = False
-    #     moved_along_y = False
-    #     if apple_dx_direction == dir_dx:
-    #         moved_along_x = True
-    #     if apple_dy_direction == dir_dy:
-    #         moved_along_y = True
-    #     return moved_along_x, moved_along_y
-
     def get_closeness_to_apple(self):
+        # Returns euclidian distance from snake head to apple
         x, y = self.p1_positions[-1]
         a_x, a_y = self.apple_position
         dist = np.sqrt(np.power(a_x - x, 2) + np.power(a_y - y, 2))
@@ -160,7 +141,7 @@ class OnePlayerSnakeGame:
                 break
 
     def extend_snake(self, positions, direction, ate_apple):
-        # Note: input is modified by this, which is expected for now
+        # inplace operation
 
         current_position_x, current_position_y = positions[-1]
         dx, dy = direction_encoding[direction]
