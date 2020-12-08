@@ -13,8 +13,8 @@ Table of content
 
 ---
 
-<a name="note"/>
 ## Preliminary note
+<a name="note"/>
 
 This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
 
@@ -28,8 +28,9 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 
 ---
 
-<a name="setting"/>
 ## Game Setting Overview
+<a name="setting"/>
+
 - Small snake world (7x7), including borders on the sides
 - Reward: 10 for apple, -20 for crash, -2 * distance to apple at each step
 - 3-step Double Deep Q-Network
@@ -39,8 +40,9 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 
 ---
 
-<a name="results"/>
 ## Results
+<a name="results"/>
+
 
 - `main_1p.py`
   - After 10,000 fittings steps: mean loss = 0.019
@@ -65,8 +67,9 @@ from Ray Heberer, although limited in potential.
 
 ---
 
-<a name="ideas"/>
 ## Good ideas and lessons for next time
+<a name="ideas"/>
+
 Reinforcement LearningL:
 - Go beyond Deep Q-Network with Double Deep Q-Network and Experience Replay.
 - Go beyond 1-step Q-Network with n-step Q-Network, but be aware of the resulting complexity.
@@ -80,8 +83,9 @@ Code
 
 ---
 
-<a name="credits"/>
 ## Credits
+<a name="credits"/>
+
 - Sutton and Barto's [Reinformcent Learning: An Introduction](http://incompleteideas.net/book/RLbook2020.pdf)
 for pseudo-code of n-step SARSA logic.
 - The [article (2019)](https://towardsdatascience.com/why-going-from-implementing-q-learning-to-deep-q-learning-can-be-difficult-36e7ea1648af)
