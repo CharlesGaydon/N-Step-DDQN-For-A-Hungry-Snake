@@ -6,20 +6,15 @@ Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake 
 
 **NOTE**:
 
-Running this code might work, but full from-scratch environment creation
- and scripts running was not tested. So don't try too hard settings things up, it's not worth it.
-
-
 This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
 
 It evolved into a toy project for getting a hang on concepts behind DDQN, and achieved its purpose before the snake could be full of apples i.e. the task is only partially solved, with sensible but non-optimal behavior achieved by the agent. 
 
 Full optimization of training parameters seems tedious and time-consuming; it would require refactoring thhe code from scratch to be robust and trustworthy.
 
---> **As a results, I will not try to optimize further all metaparameters and consider this toy project**
+--> **As a results, I will not try to optimize further all metaparameters and consider this toy project terminated.**
 
 --> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.**
-
 
 ---
 
@@ -39,15 +34,17 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
   - After 10,000 fittings steps: mean loss = 0.019
 - `demonstrate_1p.py`
   - Evaluation on 30 games:
-    - Median episode duration: 75.0
+    - Median episode duration: 75.0 (--> games were cut at 75 if reward was below 2. -> the snake learnt not to crash!)
     - Median reward: 3.0
     - High score: 13
 - `demonstrate_1p.py --mode game`
   - Example game board with a snake that ate 5 apples:
 
-<div style="text-align:center"><img src="./Trained_Models/img/snake_ascii_art.png" /></div>
+<p align="center">
+  <img src="./Trained_Models/img/snake_ascii_art.png" width="250" title="Do you like ASCII art?">
+</p>
 
-NB: games were cut at 75 if reward was below 2.
+
 
 Authors in [Finnson & Morlo](https://www.diva-portal.org/smash/get/diva2:1342302/FULLTEXT01.pdf)
 shows shows that average scores of ~30 apples could be achieved (although in a space 3 times the size of our ownn)
