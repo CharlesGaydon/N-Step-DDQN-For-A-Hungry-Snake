@@ -4,7 +4,17 @@ Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake 
 
 ---
 
-**NOTE**:
+Table of content
+- [Preliminary note](#note)
+- [Game Setting Overview](#setting)
+- Results](#results)
+- [Good ideas and lessons for next time](#ideas)
+- [Credits](#credits)
+
+---
+
+<a name="note"/>
+## Preliminary note
 
 This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
 
@@ -17,9 +27,9 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 --> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.**
 
 ---
-
-## Snake Game Setting Overview
-- Small world (7x7)
+<a name="setting"/>
+## Game Setting Overview
+- Small snake world (7x7), including borders on the sides
 - Reward: 10 for apple, -20 for crash, -2 * distance to apple at each step
 - 3-step Double Deep Q-Network
 - Epsilon-policy of a softmax with temperature
@@ -27,8 +37,8 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 - Parameters are in `main_1p.py`
 
 ---
-
-## Results & Further step to bridge the gap with SOTA solutions
+<a name="results"/>
+## Results
 
 - `main_1p.py`
   - After 10,000 fittings steps: mean loss = 0.019
@@ -52,7 +62,7 @@ Simpler solutions include using custom features as in this [article (2019)](http
 from Ray Heberer, although limited in potential.
 
 ---
-
+<a name="ideas"/>
 ## Good ideas and lessons for next time
 Reinforcement LearningL:
 - Go beyond Deep Q-Network with Double Deep Q-Network and Experience Replay.
@@ -65,6 +75,7 @@ Code
 - Start by a simpler problem : 1-player before the harder 2-player snake game; cartpole before snake game.
 - Save model's weights frequently along learning, to be able to resume learning in another session.
 
+<a name="credit"/>
 ## Credit
 - Sutton and Barto's [Reinformcent Learning: An Introduction](http://incompleteideas.net/book/RLbook2020.pdf)
 for pseudo-code of n-step SARSA logic.
