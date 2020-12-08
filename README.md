@@ -70,7 +70,7 @@ from Ray Heberer, although limited in potential.
 ## Good Ideas and Lessons For Next Time
 <a name="ideas"/>
 
-Reinforcement LearningL:
+Reinforcement Learning:
 - Go beyond Deep Q-Network with Double Deep Q-Network and Experience Replay.
 - Go beyond 1-step Q-Network with n-step Q-Network, but be aware of the resulting complexity.
 - Use standard reinforcement learning libraries like `gym`; it makes a more modular implementation.
