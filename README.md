@@ -1,8 +1,6 @@
-# snake-autoplay-RL
+# Double Deep Q-Network for Snake - a toy experimentation project.
 
----
-
-Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake learns how to eat apples by trial and errors,
+Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake learns how to eat apples by trial and errors. Would you llike to know how?
 
 ---
 
@@ -11,8 +9,17 @@ Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake 
 Running this code might work, but full from-scratch environment creation
  and scripts running was not tested. So don't try too hard settings things up, it's not worth it.
 
- There are better snake implementations out there. However, you may be inspired by the 
- n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.
+
+This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
+
+It evolved into a toy project for getting a hang on concepts behind DDQN, and achieved its purpose before the snake could be full of apples i.e. the task is only partially solved, with sensible but non-optimal behavior achieved by the agent. 
+
+Full optimization of training parameters seems tedious and time-consuming; it would require refactoring thhe code from scratch to be robust and trustworthy.
+
+--> **As a results, I will not try to optimize further all metaparameters and consider this toy project**
+
+--> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.**
+
 
 ---
 
@@ -41,15 +48,6 @@ Running this code might work, but full from-scratch environment creation
 <div style="text-align:center"><img src="./Trained_Models/img/snake_ascii_art.png" /></div>
 
 NB: games were cut at 75 if reward was below 2.
-
-This project started as a two-player snake arena and was then upgraded with the sole goal of getting a better sense of challenges and constraints of
-faced when implementing reinforcement learning algorithms from scratch.
-
-Now that I got a good hang of all the concepts, being thorough in experimenting and optimizing would require to
-refactor all the code from scratch to really control for the designs, which seems tedious and time-consuming considering the
-recreational nature of this project.
-
---> **As a results, I am not considering a systematic parameter optimization, and will not try to optimize further all metaparameters.**
 
 Authors in [Finnson & Morlo](https://www.diva-portal.org/smash/get/diva2:1342302/FULLTEXT01.pdf)
 shows shows that average scores of ~30 apples could be achieved (although in a space 3 times the size of our ownn)
