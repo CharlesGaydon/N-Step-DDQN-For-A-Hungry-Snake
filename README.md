@@ -1,6 +1,6 @@
 # Double Deep Q-Network for Snake - a toy experimentation project.
 
-Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake learns how to eat apples by trial and errors. Would you llike to know how?
+Using a **n-step Double Deep Q-Network (DDQN) with Experience Replay**, a snake learns how to eat apples by trial and errors.
 
 ---
 
@@ -16,15 +16,13 @@ Table of content
 ## Preliminary Note - Scope
 <a name="note"/>
 
-This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go).
+This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go). It evolved into **a toy project for getting a hang on concepts behind DDQN**.
 
-It evolved into a toy project for getting a hang on concepts behind DDQN, and achieved its purpose before the snake could be full of apples i.e. the task is only partially solved, with sensible but non-optimal behavior achieved by the agent. 
-
-Full optimization of training parameters seems tedious and time-consuming; it would require refactoring thhe code from scratch to be robust and trustworthy.
+The task is only partially solved, with sensible but non-optimal behavior achieved by the agent. Full optimization of training parameters would be tedious and time-consuming; it would require refactoring the code from scratch to be robust and trustworthy.
 
 --> **As a results, I will not try to optimize further all metaparameters and consider this toy project terminated.**
 
---> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking, or the few sources that I credit below.**
+--> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking to improve training stability, or the few sources that I credit below.**
 
 ---
 
@@ -57,7 +55,6 @@ Full optimization of training parameters seems tedious and time-consuming; it wo
 <p align="center">
   <img src="./Trained_Models/img/snake_ascii_art.png" width="250" title="Do you like ASCII art?">
 </p>
-
 
 
 Authors in [Finnson & Morlo](https://www.diva-portal.org/smash/get/diva2:1342302/FULLTEXT01.pdf)
