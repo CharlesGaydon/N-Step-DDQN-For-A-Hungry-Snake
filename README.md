@@ -18,9 +18,11 @@ Table of content
 
 This project started with a two-player snake game setting and a logic inspired from [AlphaZero](https://deepmind.com/blog/article/alphazero-shedding-new-light-grand-games-chess-shogi-and-go). It evolved into **a toy project for getting a hang on concepts behind DDQN**.
 
-The task is only partially solved, with sensible but non-optimal behavior achieved by the agent. Full optimization of training parameters would be tedious and time-consuming; it would require refactoring the code from scratch to be robust and trustworthy.
+The task is only partially solved, with sensible but non-optimal behavior achieved by the agent. Full optimization of training parameters would be tedious and time-consuming; it would require refactoring the code from scratch to be robust and trustworthy. 
 
---> **As a results, I will not try to optimize further all metaparameters and consider this toy project terminated.**
+As a result:
+
+--> **This project is closed and I will not try to optimize further the metaparameters.**
 
 --> **You may still be inspired by the n-step DDQN implementation in `arena.py`, the use of a target network with masking to improve training stability, or the few sources that I credit below.**
 
@@ -83,7 +85,7 @@ Code
 ## Credits
 <a name="credits"/>
 
-- Sutton and Barto's [Reinformcent Learning: An Introduction](http://incompleteideas.net/book/RLbook2020.pdf)
+- Sutton and Barto's [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/RLbook2020.pdf)
 for pseudo-code of n-step SARSA logic.
 - The [article (2019)](https://towardsdatascience.com/why-going-from-implementing-q-learning-to-deep-q-learning-can-be-difficult-36e7ea1648af)
 from Ray Heberer for ideas related to Double Deep Q-Network.
